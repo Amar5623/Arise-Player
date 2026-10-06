@@ -1,0 +1,9 @@
+dist
+node_modules
+docs
+screenshots
+.impeccable
+.claude
+.agent
+.gemini
+package-lock.json

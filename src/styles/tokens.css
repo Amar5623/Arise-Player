@@ -1,0 +1,132 @@
+/* Design tokens. DESIGN.md documents every value here; nothing outside this file exists. */
+@theme {
+  /* Wipe Tailwind defaults so only tokens can be used. */
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --blur-*: initial;
+  --tracking-*: initial;
+  --leading-*: initial;
+  --ease-*: initial;
+  --animate-*: initial;
+
+  /* Ground and surfaces: elevation is luminance. */
+  --color-base: #05070c;
+  --color-s1: #0a0f1a;
+  --color-s2: #0f1624;
+  --color-s3: #151e30;
+  --color-s4: #1b2638;
+  --color-line: rgb(140 170 220 / 0.1);
+  --color-line-2: rgb(140 170 220 / 0.16);
+  --color-line-3: rgb(140 170 220 / 0.28);
+  /* Interactive boundaries (checkbox, field, switch track): >= 3:1 on s1-s3. Hairlines stay for dividers. */
+  --color-ctl: #617088;
+
+  /* Ink. ink-3 is text only on base/s1/s2; ink-4 is never text. */
+  --color-ink: #e6edf7;
+  --color-ink-2: #8c9ab3;
+  --color-ink-3: #74819a;
+  --color-ink-4: #56627a;
+
+  /* The one accent. */
+  --color-sys: #4db8ff;
+  --color-sys-hi: #6cc5ff;
+  --color-sys-lo: #3aa6ee;
+  --color-sys-dim: rgb(77 184 255 / 0.14);
+  --color-sys-ink: #05070c;
+  --color-selection: rgb(77 184 255 / 0.32);
+
+  /* Semantic. */
+  --color-ok: #4be3a0;
+  --color-ok-dim: rgb(75 227 160 / 0.12);
+  --color-warn: #f5b94a;
+  --color-warn-dim: rgb(245 185 74 / 0.12);
+  --color-bad: #ff4d6a;
+  --color-bad-dim: rgb(255 77 106 / 0.12);
+  --color-rare: #9b87ff;
+  --color-rare-dim: rgb(155 135 255 / 0.14);
+
+  /* Quest-record heatmap: ordinal sys ramp, validated (light end 2.26:1 on s1). Tops out below full sys. */
+  --color-heat-1: #255073;
+  --color-heat-2: #2f6a96;
+  --color-heat-3: #3984b9;
+  --color-heat-4: #439edc;
+
+  /* Stat marks: small marks only. */
+  --color-str: #ff7f5c;
+  --color-agi: #3dd6d0;
+  --color-vit: #a8dc4e;
+  --color-int: #b59bff;
+  --color-cha: #ff7eb6;
+  --color-wlt: #e9c46a;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Faces. */
+  --font-display: 'Saira Semi Condensed', 'Arial Narrow', sans-serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  /* Type scale: 11/13/15/17/22/28/40/64. Nothing else. */
+  --text-11: 0.6875rem;
+  --text-11--line-height: 0.875rem;
+  --text-13: 0.8125rem;
+  --text-13--line-height: 1.125rem;
+  --text-15: 0.9375rem;
+  --text-15--line-height: 1.375rem;
+  --text-17: 1.0625rem;
+  --text-17--line-height: 1.5rem;
+  --text-22: 1.375rem;
+  --text-22--line-height: 1.75rem;
+  --text-28: 1.75rem;
+  --text-28--line-height: 2rem;
+  --text-40: 2.5rem;
+  --text-40--line-height: 2.75rem;
+  --text-64: 4rem;
+  --text-64--line-height: 4rem;
+
+  --tracking-hud: 0.12em;
+  --tracking-hud-md: 0.1em;
+  --tracking-hud-lg: 0.06em;
+  --tracking-tight: -0.02em;
+
+  /* 4px grid. */
+  --spacing: 4px;
+
+  /* Radii: marks 2, controls 6, cards 10, System 0. */
+  --radius-mark: 2px;
+  --radius-ctl: 6px;
+  /* Concentric radius for an element nested 2px inside a control. */
+  --radius-inner: 4px;
+  --radius-card: 10px;
+
+  --blur-bar: 16px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --dur-1: 150ms;
+  --dur-2: 200ms;
+  --dur-3: 250ms;
+  --dur-4: 600ms;
+
+  --z-sticky: 10;
+  --z-tabbar: 20;
+  --z-sheet: 40;
+  --z-takeover: 50;
+  --z-toast: 60;
+  --z-grain: -1;
+
+  --frame-w: 430px;
+  --tabbar-h: 64px;
+  --cta-h: 52px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

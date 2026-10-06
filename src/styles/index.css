@@ -1,0 +1,162 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './system.css';
+
+/* HUD voice: the condensed display face, uppercase and tracked. */
+@utility hud-11 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-11);
+  line-height: var(--text-11--line-height);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+@utility hud-13 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-13);
+  line-height: var(--text-13--line-height);
+  letter-spacing: var(--tracking-hud-md);
+  text-transform: uppercase;
+}
+@utility hud-17 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-17);
+  line-height: var(--text-17--line-height);
+  letter-spacing: var(--tracking-hud-lg);
+  text-transform: uppercase;
+}
+@utility hud-22 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-22);
+  line-height: var(--text-22--line-height);
+  letter-spacing: var(--tracking-hud-lg);
+  text-transform: uppercase;
+}
+@utility hud-28 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-28);
+  line-height: var(--text-28--line-height);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Numbers are heroes: mono with tabular figures. */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+@utility tap {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-base);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--color-base);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-15);
+    line-height: var(--text-15--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+    caret-color: var(--color-sys);
+    accent-color: var(--color-sys);
+  }
+  ::selection {
+    background: var(--color-selection);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-sys);
+    outline-offset: 2px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: default;
+  }
+  a {
+    color: inherit;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ink-3);
+    opacity: 1;
+  }
+  /* Thin themed scrollbars for the desktop phone frame. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-s4) transparent;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  #root {
+    position: relative;
+    max-width: var(--frame-w);
+    min-height: 100dvh;
+    margin-inline: auto;
+    isolation: isolate;
+  }
+  @media (min-width: 640px) {
+    #root {
+      border-inline: 1px solid var(--color-line);
+    }
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion: nothing moves. Colour and opacity changes still carry state. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-property: color, background-color, border-color, opacity !important;
+  }
+}

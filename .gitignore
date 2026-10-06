@@ -1,0 +1,13 @@
+node_modules
+dist
+dev-dist
+*.tsbuildinfo
+.env
+.env.local
+.vercel
+test-results
+playwright-report
+.claude/settings.local.json
+.impeccable/config.local.json
+.impeccable/review/tmp
+screenshots
