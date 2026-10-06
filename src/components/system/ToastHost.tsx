@@ -73,7 +73,6 @@ export function ToastFrame({
 }) {
   return (
     <div
-      role={toast.tone === 'bad' || toast.tone === 'warn' ? 'alert' : 'status'}
       data-tone={toast.tone}
       className={cn('sys-window bg-s1', className)}
     >

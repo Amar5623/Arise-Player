@@ -126,7 +126,7 @@ export function ExerciseScreen() {
                         >
                           {s.name}
                         </span>
-                        <span className="shrink-0 hud-11 text-ink-3">
+                        <span className={cn('shrink-0 hud-11', state === 'current' ? 'text-sys' : 'text-ink-3')}>
                           {state === 'current'
                             ? 'Current'
                             : state === 'done'

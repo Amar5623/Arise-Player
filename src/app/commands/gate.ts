@@ -11,6 +11,7 @@ import { ALL_TABLES, repo } from '@/db/repos';
 import { toast } from '@/app/stores/toasts';
 import { haptic } from '@/lib/haptics';
 import { play } from '@/lib/sound';
+import { syncGoals } from './records';
 import { celebrate, toEvents, uid } from './xp';
 
 export interface LoggedSet {
@@ -106,5 +107,11 @@ export async function clearGate(
       detail: `+${XP.dailyBonus} XP bonus.`,
     });
   const after = await celebrate(before, p.date);
+  // After the gate's own celebration, so a cleared goal raises its own level-up.
+  const pulls = Math.max(
+    0,
+    ...entries.filter((e) => e.exerciseId === 'pull-5').flatMap((e) => e.sets.map((s) => s ?? 0)),
+  );
+  if (pulls > 0) await syncGoals('ladder.pull', pulls, p.date);
   return { session, drafts, unlocks: result.unlocks, before, after };
 }

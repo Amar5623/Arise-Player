@@ -51,71 +51,56 @@ export function HistoryScreen() {
             <CaretRight />
           </IconButton>
         </div>
-        <div className="grid grid-cols-7 gap-1" role="grid" aria-label="Days">
+        <div aria-hidden className="grid grid-cols-7 gap-0.5">
           {DAY_SHORT.map((d) => (
-            <span key={d} role="columnheader" className="pb-1 text-center hud-11 text-ink-3">
+            <span key={d} className="pb-1 text-center hud-11 text-ink-3">
               {d}
             </span>
           ))}
+        </div>
+        <ol aria-label="Days" className="-mt-3 grid grid-cols-7 gap-0.5">
           {cells.map((date, i) => {
-            if (!date) return <span key={`e${i}`} />;
+            if (!date) return <li key={`e${i}`} aria-hidden />;
             const rec = days?.get(date);
             const inRange = date >= joined && date <= today;
-            const raw = rec
-              ? rec.closed
-                ? (rec.ratio ?? 0)
-                : dayRatio(rec.quests)
-              : inRange && date < today
-                ? 0
-                : null;
+            const raw = rec ? (rec.closed ? (rec.ratio ?? 0) : dayRatio(rec.quests)) : inRange && date < today ? 0 : null;
             // Today is in progress: show it only once something is done.
             const ratio = date === today && raw === 0 ? null : raw;
-            const label = `${date}, ${ratio === null ? 'no record' : `${Math.round(ratio * 100)}%`}`;
             const n = Number(date.slice(8));
+            const name = new Date(`${date}T12:00:00`).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+            const label = `${name}${date === today ? ', today' : ''}, ${ratio === null ? 'no record yet' : ratio === 0 ? 'missed' : `${Math.round(ratio * 100)}%`}`;
+            // Bright fills (80% and up) take dark text for contrast.
+            const onBright = ratio !== null && ratio >= 0.8;
             const body = (
               <>
-                <span
-                  className={cn(
-                    'num text-15',
-                    ratio !== null && ratio >= 0.5 ? 'text-ink' : 'text-ink-2',
-                  )}
-                >
-                  {n}
-                </span>
-                {ratio !== null && (
-                  <span className={cn('num text-11', ratio > 0 ? 'text-ink' : 'text-ink-2')}>
-                    {Math.round(ratio * 100)}
-                  </span>
+                <span className={cn('num text-15', onBright ? 'text-sys-ink' : ratio !== null && ratio >= 0.5 ? 'text-ink' : 'text-ink-2')}>{n}</span>
+                {ratio !== null && ratio > 0 && (
+                  <span className={cn('num text-11', onBright ? 'text-sys-ink' : 'text-ink')}>{Math.round(ratio * 100)}</span>
                 )}
               </>
             );
             const cls = cn(
-              'flex aspect-square flex-col items-center justify-center rounded-ctl border',
-              ratio === null
-                ? 'border-transparent text-ink-3'
-                : ratio === 0
-                  ? 'border-ink-4'
-                  : cn('border-transparent', fill(ratio)),
-              date === today && 'outline-1 outline-offset-1 outline-ink',
+              'flex aspect-square min-h-11 flex-col items-center justify-center rounded-ctl border',
+              ratio === null ? 'border-transparent text-ink-3' : ratio === 0 ? 'border-ink-4' : cn('border-transparent', fill(ratio)),
+              date === today && 'border-sys',
             );
-            return inRange ? (
-              <Link
-                key={date}
-                to={`/status/history/${date}`}
-                aria-label={label}
-                className={cn(cls, 'tap transition-transform duration-(--dur-1) active:scale-95')}
-              >
-                {body}
-              </Link>
-            ) : (
-              <span key={date} aria-label={label} className={cls}>
-                {body}
-              </span>
+            return (
+              <li key={date}>
+                {inRange ? (
+                  <Link to={`/status/history/${date}`} aria-label={label} className={cn(cls, 'tap transition-transform duration-(--dur-1) active:scale-95')}>
+                    {body}
+                  </Link>
+                ) : (
+                  <span aria-hidden className={cls}>
+                    {body}
+                  </span>
+                )}
+              </li>
             );
           })}
-        </div>
+        </ol>
         <p className="text-13 text-ink-3">
-          Numbers under each day are the percent of required quests done. Outlined days were missed.
+          Each filled day shows the percent of required quests done. Grey outlines are missed days; today is outlined in blue.
         </p>
       </div>
     </>

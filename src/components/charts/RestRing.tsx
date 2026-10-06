@@ -11,6 +11,8 @@ export interface RestRingProps {
   /** Fires once when the countdown reaches zero. */
   onDone?: () => void;
   size?: number;
+  /** Small ring for an inline slot: smaller digits and label. */
+  compact?: boolean;
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export function RestRing({
   remaining = total,
   onDone,
   size = 248,
+  compact = false,
   className,
 }: RestRingProps) {
   const stroke = 6;
@@ -131,10 +134,10 @@ export function RestRing({
         />
       </svg>
       <div className="relative flex flex-col items-center gap-1" aria-hidden>
-        <span ref={label} className="hud-13 text-ink-2 data-[done=true]:text-ok">
+        <span ref={label} className={cn(compact ? 'hud-11' : 'hud-13', 'text-ink-2 data-[done=true]:text-ok')}>
           Rest
         </span>
-        <span ref={digits} className="num text-64 font-medium tracking-tight text-ink">
+        <span ref={digits} className={cn('num font-medium tracking-tight text-ink', compact ? 'text-22' : 'text-64')}>
           {fmt(remaining)}
         </span>
       </div>

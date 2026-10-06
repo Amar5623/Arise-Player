@@ -37,7 +37,7 @@ export function ConditionChip({
         <span className="num text-ink">{readiness.soreness}</span>
         {readiness.pain ? ', pain' : ''}
       </p>
-      <Button variant="ghost" onClick={onEdit} className="-mr-2">
+      <Button id="condition-edit" variant="ghost" onClick={onEdit} className="-mr-2">
         Edit
       </Button>
     </div>

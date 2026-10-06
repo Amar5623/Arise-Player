@@ -157,7 +157,12 @@ export interface Goal {
   updates: GoalUpdate[];
   done: boolean;
   doneAt?: ISODate;
+  /** Where the value comes from when the System tracks it, instead of manual updates. */
+  source?: GoalSource;
 }
+
+/** body.waist follows the body log; ladder.pull is the best set of full pull-ups. */
+export type GoalSource = 'body.waist' | 'ladder.pull';
 
 export interface BodyEntry {
   date: ISODate;

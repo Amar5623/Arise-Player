@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react';
-import { CaretLeft, CaretRight, FirstAidKit, PlayCircle, SunDim, X } from '@phosphor-icons/react';
+import { CaretLeft, CaretRight, Check, FirstAidKit, PlayCircle, SunDim, X } from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { clearDraft, draftKey, emptyDraft, type GateDraft } from '@/app/commands/draft';
@@ -118,13 +118,14 @@ function Focus({ p, draft: stored }: { p: Prescription; draft: GateDraft }) {
         </IconButton>
         <div className="flex min-w-0 flex-1 flex-col">
           <p className="truncate hud-13 text-ink">{p.name}</p>
-          <p className="text-11 text-ink-3">
-            {awake ? 'Screen stays on' : 'Progress saves as you go'}
-          </p>
+          <p className="text-13 text-ink-3">{awake ? 'Screen stays on' : 'Progress saves as you go'}</p>
         </div>
         {awake && <SunDim aria-hidden className="mr-1 size-5 text-ink-3" />}
-        <p className="mr-3 num text-15 text-ink-2" aria-label={`Exercise ${index} of ${total}`}>
+        <p aria-hidden className="mr-3 num text-15 text-ink-2">
           <span className="text-ink">{index}</span>/{total}
+        </p>
+        <p className="sr-only" aria-live="polite">
+          {item ? `Exercise ${index} of ${total}: ${item.name}, ${item.sets} sets of ${item.target}` : 'Warm-up'}
         </p>
       </header>
       <div className="flex h-1 gap-0.5 px-4 pt-2 pb-1" aria-hidden>
@@ -195,7 +196,7 @@ function Focus({ p, draft: stored }: { p: Prescription; draft: GateDraft }) {
             }
             onRestDone={() => {
               haptic('timer');
-              play('chime', true);
+              play('chime');
               update(() => ({ restEndsAt: null }));
             }}
           />
@@ -322,7 +323,6 @@ function WarmupPanel({ draft, update }: { draft: GateDraft; update: Update }) {
   return (
     <div className="flex flex-col gap-4 pb-6">
       <div className="flex flex-col gap-1">
-        <p className="hud-13 text-ink-2">Before the Gate</p>
         <h1 className="hud-28 text-ink">Corrective warm-up</h1>
         <p className="text-15 text-ink-2">8 minutes. Same six moves, every training day.</p>
       </div>
@@ -382,6 +382,7 @@ function ExercisePanel({
   const def = anyExercise(it.exerciseId);
   const press = useRef<number | null>(null);
   const longFired = useRef(false);
+  const start = useRef<{ x: number; y: number } | null>(null);
 
   return (
     <div className="flex flex-col gap-5 pb-6">
@@ -411,31 +412,28 @@ function ExercisePanel({
         </a>
       </div>
 
-      {resting && draft.restEndsAt ? (
-        <div className="flex flex-col items-center gap-3">
-          <RestRing
-            total={draft.restTotal}
-            endsAt={draft.restEndsAt}
-            onDone={onRestDone}
-            size={232}
-          />
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={onAddRest}>
-              +30 s
-            </Button>
-            <Button onClick={onSkipRest}>Skip rest</Button>
-          </div>
+      {/* Fixed-height slot: the rest ring appears beside the target, so the set chips never move. */}
+      <div className="flex h-36 items-center justify-between gap-3 border-y border-line">
+        <div className="flex flex-col">
+          <span className="num text-64 font-medium tracking-tight text-ink">{it.target}</span>
+          <span className="text-15 text-ink-2">{doseText(it)}</span>
         </div>
-      ) : (
-        <div className="flex items-end justify-between gap-4 border-y border-line py-4">
-          <div className="flex items-end gap-2">
-            <span className="num text-64 font-medium tracking-tight text-ink">{it.target}</span>
-            <span className="pb-2 text-15 text-ink-2">{doseText(it)}</span>
+        {resting && draft.restEndsAt ? (
+          <div className="flex items-center gap-2">
+            <RestRing total={draft.restTotal} endsAt={draft.restEndsAt} onDone={onRestDone} size={112} compact />
+            <div className="flex flex-col gap-1.5">
+              <Button variant="ghost" className="px-3" aria-label="Add 30 seconds of rest" onClick={onAddRest}>
+                +30 s
+              </Button>
+              <Button className="px-3" aria-label="Skip rest" onClick={onSkipRest}>
+                Skip
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-0.5 pb-1.5 text-13 text-ink-2">
+        ) : (
+          <div className="flex flex-col items-end gap-0.5 text-13 text-ink-2">
             <span>
-              <span className="num text-17 text-ink">{it.sets}</span>{' '}
-              {circuit ? 'rounds' : it.sets === 1 ? 'set' : 'sets'}
+              <span className="num text-17 text-ink">{it.sets}</span> {circuit ? 'rounds' : it.sets === 1 ? 'set' : 'sets'}
             </span>
             {it.range && (
               <span>
@@ -449,60 +447,64 @@ function ExercisePanel({
               Rest <span className="num text-ink">{it.rest}</span> s
             </span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div
-        className={cn('grid gap-2', it.sets <= 3 ? 'grid-cols-3' : 'grid-cols-4')}
-        role="group"
-        aria-label="Sets"
-      >
+      <div className={cn('grid gap-2', it.sets <= 3 ? 'grid-cols-3' : 'grid-cols-4')} role="group" aria-label="Sets">
         {sets.map((v, i) => {
           const done = v !== null;
           const hit = done && v >= it.target;
+          const short = done && !hit ? v - it.target : 0;
+          const cancel = () => {
+            if (press.current) window.clearTimeout(press.current);
+            press.current = null;
+          };
           return (
             <button
               key={i}
               type="button"
               aria-label={
                 done
-                  ? `Set ${i + 1}: ${v} ${doseText(it)}. Tap to edit.`
+                  ? `Set ${i + 1}: ${v} ${doseText(it)}${hit ? '' : `, ${-short} under target`}. Tap to edit.`
                   : `Set ${i + 1}: log ${it.target}`
               }
-              onPointerDown={() => {
+              onPointerDown={(e) => {
                 longFired.current = false;
+                start.current = { x: e.clientX, y: e.clientY };
                 press.current = window.setTimeout(() => {
                   longFired.current = true;
                   haptic('tick');
                   onLongSet(i);
                 }, 500);
               }}
-              onPointerUp={() => press.current && window.clearTimeout(press.current)}
-              onPointerCancel={() => press.current && window.clearTimeout(press.current)}
-              onPointerLeave={() => press.current && window.clearTimeout(press.current)}
+              onPointerMove={(e) => {
+                // A swipe or scroll that starts on a chip is not a long-press.
+                if (start.current && Math.hypot(e.clientX - start.current.x, e.clientY - start.current.y) > 8) cancel();
+              }}
+              onPointerUp={cancel}
+              onPointerCancel={cancel}
+              onPointerLeave={cancel}
               onContextMenu={(e) => e.preventDefault()}
               onClick={() => {
                 if (longFired.current) return;
                 onTapSet(i);
               }}
               className={cn(
-                'flex min-h-18 tap flex-col items-center justify-center gap-0.5 rounded-ctl border transition-[background-color,border-color,transform] duration-(--dur-1) active:scale-[0.97]',
-                !done && 'border-ctl bg-s1 hover:bg-s2',
-                done && hit && 'border-sys bg-sys-dim',
-                done && !hit && 'border-ink-3 bg-s2',
+                'relative flex min-h-18 tap flex-col items-center justify-center gap-0.5 rounded-ctl border transition-[background-color,border-color,transform] duration-(--dur-1) active:scale-[0.97]',
+                !done && 'border-ctl bg-transparent hover:bg-s2',
+                hit && 'border-sys bg-sys-dim',
+                done && !hit && 'border-warn bg-warn-dim',
               )}
             >
-              <span className="hud-11 text-ink-3">Set {i + 1}</span>
-              <span className={cn('num text-28', done ? 'text-ink' : 'text-ink-3')}>
-                {v ?? it.target}
-              </span>
+              {hit && <Check aria-hidden weight="bold" className="absolute top-1.5 right-1.5 size-3 text-sys" />}
+              <span className={cn('hud-11', done ? 'text-ink-2' : 'text-ink-3')}>Set {i + 1}</span>
+              <span className={cn('num text-28', done ? 'text-ink' : 'text-ink-3')}>{v ?? it.target}</span>
+              {short < 0 && <span className="absolute top-1 right-1.5 num text-11 text-warn">{short}</span>}
             </button>
           );
         })}
       </div>
-      <p className="-mt-2 text-13 text-ink-3">
-        Tap a set to log the target. Tap again or hold to change it.
-      </p>
+      <p className="-mt-2 text-13 text-ink-3">Tap to log the target. Tap again or hold to edit.</p>
 
       <fieldset className="flex flex-col gap-2">
         <legend className="flex w-full justify-between pb-1.5 text-15 text-ink">

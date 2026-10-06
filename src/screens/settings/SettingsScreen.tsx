@@ -544,7 +544,9 @@ function AiSection({ profile }: { profile: Profile }) {
 
 function DataSection() {
   const resetSheet = useSheet('reset');
-  const importSheet = useSheet<string>('import');
+  const importSheet = useSheet('import');
+  // The file text stays in memory, never in history state.
+  const [importText, setImportText] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [typed, setTyped] = useState('');
   const [busy, setBusy] = useState(false);
@@ -582,11 +584,14 @@ function DataSection() {
         type="file"
         accept="application/json,.json"
         className="sr-only"
+        tabIndex={-1}
         aria-label="Backup file"
         onChange={async (e) => {
           const f = e.target.files?.[0];
           e.target.value = '';
-          if (f) importSheet.show(await f.text());
+          if (!f) return;
+          setImportText(await f.text());
+          importSheet.show();
         }}
       />
       <SectionHead>Danger</SectionHead>
@@ -617,9 +622,9 @@ function DataSection() {
               block
               loading={busy}
               onClick={async () => {
-                if (!importSheet.data) return;
+                if (!importText) return;
                 setBusy(true);
-                const res = await importBackup(importSheet.data);
+                const res = await importBackup(importText);
                 setBusy(false);
                 if (!res.ok) {
                   toast({

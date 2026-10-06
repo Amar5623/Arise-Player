@@ -2,7 +2,7 @@
 import { toast } from '@/app/stores/toasts';
 import { goalReached, updateGoal } from '@/engine/goals';
 import { XP } from '@/engine/xp';
-import type { BodyEntry, Goal, ISODate } from '@/engine/types';
+import type { BodyEntry, Goal, GoalSource, ISODate } from '@/engine/types';
 import { repo } from '@/db/repos';
 import { haptic } from '@/lib/haptics';
 import { play } from '@/lib/sound';
@@ -20,6 +20,20 @@ export async function logBody(entry: BodyEntry, today: ISODate): Promise<void> {
   const rec = await repo.days.get(entry.date);
   if (rec?.quests.some((q) => q.kind === 'weigh' && !q.done))
     await toggleQuest(entry.date, 'weigh', true);
+  if (entry.waistCm && entry.date === today) await syncGoals('body.waist', entry.waistCm, today);
+}
+
+/**
+ * Moves every open goal that tracks this source. Waist follows the latest measurement; pull-ups
+ * only ever move up, so one bad session never undoes a record.
+ */
+export async function syncGoals(source: GoalSource, value: number, today: ISODate): Promise<void> {
+  const goals = await repo.goals.all();
+  for (const g of goals) {
+    if (g.done || g.source !== source || g.current === value) continue;
+    if (source === 'ladder.pull' && value < g.current) continue;
+    await updateGoalValue(g.id, value, today);
+  }
 }
 
 export async function saveGoal(

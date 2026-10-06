@@ -37,7 +37,7 @@ export function TabsLayout() {
 
   return (
     <div className="min-h-dvh pb-[calc(var(--tabbar-h)+var(--safe-bottom))]">
-      <div
+      <main
         key={location.pathname}
         className="page-enter"
         style={
@@ -48,7 +48,7 @@ export function TabsLayout() {
         }
       >
         <Frozen>{outlet}</Frozen>
-      </div>
+      </main>
       <TabBar />
     </div>
   );

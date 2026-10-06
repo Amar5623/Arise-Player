@@ -1,4 +1,4 @@
-import { CalendarBlank, Gear, Lock, Plus, Scroll } from '@phosphor-icons/react';
+import { CalendarBlank, CaretDown, Gear, Lock, Plus, Scroll } from '@phosphor-icons/react';
 import { Link, useNavigate } from 'react-router';
 import { equipTitle } from '@/app/commands/settings';
 import { useToday } from '@/app/stores/clock';
@@ -67,6 +67,8 @@ export function StatusScreen() {
   const cells = heatmap(today, days, profile.joinedAt);
   const owned = player?.titles ?? ['awakened'];
   const equipped = player?.equippedTitle ?? 'awakened';
+  const unlocked = TITLES.filter((t) => owned.includes(t.id) && t.id !== equipped);
+  const locked = TITLES.filter((t) => !owned.includes(t.id));
   const rank = summary.rank;
 
   const first = body[0];
@@ -96,7 +98,7 @@ export function StatusScreen() {
         className="-mt-4 grid grid-cols-[1fr_auto] items-end gap-x-4 gap-y-4"
       >
         <div className="flex min-w-0 flex-col">
-          <p className="truncate text-17 font-semibold text-ink">{profile.name}</p>
+          <h1 className="truncate text-17 font-semibold text-ink">{profile.name}</h1>
           <p className="hud-13 text-rare">{titleName(equipped) ?? 'No title'}</p>
           <div className="mt-3 flex items-end gap-2">
             <span className="pb-2 hud-17 text-ink-2">Lv</span>
@@ -131,7 +133,7 @@ export function StatusScreen() {
           Stats
         </SectionHead>
         <div className="rounded-card border border-line bg-s1 pt-2">
-          <Radar values={values} maxSize={220} />
+          <Radar values={values} maxSize={220} showValues={false} />
           <ul className="grid grid-cols-3 border-t border-line">
             {STATS.map((s, i) => (
               <li
@@ -288,7 +290,7 @@ export function StatusScreen() {
             <ul className="flex flex-col gap-2">
               {MONTHLY_CHECKS.map((c) => (
                 <li key={c} className="flex gap-2 text-13 text-ink-2">
-                  <span aria-hidden className="mt-2 h-px w-2 shrink-0 bg-ink-3" />
+                  <span aria-hidden className="mt-2 size-1 shrink-0 bg-ink-3" />
                   {c}
                 </li>
               ))}
@@ -321,49 +323,56 @@ export function StatusScreen() {
         >
           Titles
         </SectionHead>
-        <ul className="grid grid-cols-2 gap-2">
-          {TITLES.map((t) => {
-            const has = owned.includes(t.id);
-            const on = equipped === t.id;
-            return (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  disabled={!has}
-                  aria-pressed={has ? on : undefined}
-                  onClick={() => {
-                    void equipTitle(t.id);
-                    toast({ tone: 'rare', label: 'Title equipped', message: t.name });
-                  }}
-                  className={cn(
-                    'flex min-h-20 w-full tap flex-col items-start gap-1 rounded-ctl border px-3 py-2.5 text-left transition-colors duration-(--dur-1)',
-                    on && 'border-rare bg-rare-dim',
-                    has && !on && 'border-line-2 bg-s1 hover:border-line-3 active:bg-s2',
-                    !has && 'border-line bg-transparent',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'flex items-center gap-1.5 text-15',
-                      has ? 'text-ink' : 'text-ink-3',
-                    )}
+        <div className="flex min-h-16 items-center justify-between gap-3 rounded-card border border-rare bg-rare-dim px-4 py-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-15 text-ink">{titleName(equipped) ?? 'No title'}</span>
+            <span className="text-13 text-ink-2">
+              {TITLES.find((t) => t.id === equipped)?.condition}
+            </span>
+          </div>
+          <span className="hud-11 shrink-0 text-rare">Equipped</span>
+        </div>
+        {unlocked.length > 0 && (
+          <>
+            <p className="pt-4 pb-2 text-13 text-ink-2">Tap to equip</p>
+            <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-s1">
+              {unlocked.map((t) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void equipTitle(t.id);
+                      toast({ tone: 'rare', label: 'Title equipped', message: t.name });
+                    }}
+                    className="flex min-h-14 w-full tap flex-col justify-center gap-0.5 px-4 py-2.5 text-left transition-colors duration-(--dur-1) hover:bg-s2 active:bg-s3"
                   >
-                    {!has && <Lock className="size-3.5" aria-label="Locked" />}
-                    {t.name}
-                  </span>
-                  <span
-                    className={cn(
-                      'text-13',
-                      on ? 'hud-11 text-rare' : has ? 'text-ink-2' : 'text-ink-3',
-                    )}
-                  >
-                    {on ? 'Equipped' : t.condition}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                    <span className="text-15 text-ink">{t.name}</span>
+                    <span className="text-13 text-ink-2">{t.condition}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {locked.length > 0 && (
+          <details className="group mt-2">
+            <summary className="flex min-h-11 tap cursor-pointer list-none items-center justify-between gap-3 text-13 text-ink-2 hover:text-ink [&::-webkit-details-marker]:hidden">
+              <span className="flex items-center gap-2">
+                <Lock className="size-4" aria-hidden />
+                {locked.length} locked
+              </span>
+              <CaretDown aria-hidden className="size-4 transition-transform duration-(--dur-1) group-open:rotate-180" />
+            </summary>
+            <ul className="flex flex-col divide-y divide-line">
+              {locked.map((t) => (
+                <li key={t.id} className="flex flex-col gap-0.5 py-2.5">
+                  <span className="text-15 text-ink-3">{t.name}</span>
+                  <span className="text-13 text-ink-3">{t.condition}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </section>
 
       <ListGroup>

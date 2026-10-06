@@ -9,13 +9,15 @@ export interface RadarProps {
   max?: number;
   /** Largest web diameter box; the chart shrinks to fit its container. */
   maxSize?: number;
+  /** Print each value beside its label. Off where the values are listed next to the chart. */
+  showValues?: boolean;
   className?: string;
 }
 
 const RINGS = [0.25, 0.5, 0.75, 1];
 
 /** Six stats on one web. Single series: sys stroke, 12% wash, stat-tinted vertices. */
-export function Radar({ values, max, maxSize = 240, className }: RadarProps) {
+export function Radar({ values, max, maxSize = 240, showValues = true, className }: RadarProps) {
   const [ref, width] = useWidth<HTMLElement>();
   const top =
     max ?? Math.max(20, Math.ceil(Math.max(...STAT_KEYS.map((k) => values[k])) / 10) * 10);
@@ -99,9 +101,11 @@ export function Radar({ values, max, maxSize = 240, className }: RadarProps) {
               >
                 {k}
               </tspan>
-              <tspan dx={5} fill="var(--color-ink)" fontFamily="var(--font-mono)" fontSize={11}>
-                {values[k]}
-              </tspan>
+              {showValues && (
+                <tspan dx={5} fill="var(--color-ink)" fontFamily="var(--font-mono)" fontSize={11}>
+                  {values[k]}
+                </tspan>
+              )}
             </text>
           );
         })}

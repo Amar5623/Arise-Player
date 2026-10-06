@@ -62,7 +62,9 @@ export function SystemWindow({
       {reveal && (
         <>
           <span aria-hidden className="sys-cover" />
-          <span aria-hidden data-play className="sys-scan" />
+          <span aria-hidden className="sys-scan-track">
+            <span className="sys-scan" />
+          </span>
         </>
       )}
     </section>

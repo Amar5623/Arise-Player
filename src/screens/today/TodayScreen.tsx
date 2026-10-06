@@ -36,9 +36,10 @@ const WEEKDAY = [
 ] as const;
 
 /** Reveal the Daily Quest window once per day, on the first open. */
-function useAnnounce(today: string) {
+function useAnnounce(today: string, ready: boolean) {
   const seen = useMeta<string>('announced');
-  const reveal = seen !== undefined && seen !== today;
+  // The day's quest window announces itself once, right after the morning check lands.
+  const reveal = ready && seen !== undefined && seen !== today;
   useEffect(() => {
     if (!reveal) return;
     // Mark it seen once the scan has played, so the reveal never cuts off mid-sweep.
@@ -56,7 +57,7 @@ export function TodayScreen() {
   const days = useDays();
   const summary = useXpSummary();
   const player = usePlayer();
-  const reveal = useAnnounce(today);
+  const reveal = useAnnounce(today, !!rec?.readiness);
   const statusSheet = useSheet('status');
   const bodySheet = useSheet('body');
   const [busy, setBusy] = useState(false);
@@ -121,13 +122,15 @@ export function TodayScreen() {
             <h2 id="check-title" className="hud-13 text-ink">
               Morning status check
             </h2>
-            <span className="text-13 text-ink-3">Sets today’s condition</span>
+            <span className="text-13 text-ink-3 max-[380px]:hidden">Sets today’s condition</span>
           </div>
           <StatusCheck
             busy={busy}
             onSubmit={async (r) => {
               setBusy(true);
               await submitReadiness(today, r);
+              // The form is replaced by the condition chip: move focus to it.
+              requestAnimationFrame(() => document.getElementById('condition-edit')?.focus());
               setBusy(false);
             }}
           />
@@ -227,7 +230,7 @@ export function TodayScreen() {
             size="lg"
             block
             icon={<Play weight="fill" />}
-            onClick={() => navigate('/train')}
+            onClick={() => navigate('/gate/focus')}
           >
             Start Gate
           </Button>

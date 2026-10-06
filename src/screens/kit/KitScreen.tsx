@@ -720,10 +720,10 @@ export function KitScreen() {
                   rankFrom: 'E',
                   rankTo: 'D',
                   deltas: [
-                    { stat: 'STR', amount: 2 },
-                    { stat: 'AGI', amount: 1 },
-                    { stat: 'VIT', amount: 1 },
-                    { stat: 'INT', amount: 2 },
+                    { stat: 'STR', from: 14, to: 16 },
+                    { stat: 'AGI', from: 14, to: 15 },
+                    { stat: 'VIT', from: 14, to: 15 },
+                    { stat: 'INT', from: 14, to: 16 },
                   ],
                 });
               }}

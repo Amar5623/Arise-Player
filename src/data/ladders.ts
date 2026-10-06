@@ -123,7 +123,7 @@ export const LADDERS: Record<LadderKey, LadderDef> = {
         range: [10, 15],
         unit: 'reps',
         perSide: false,
-        howTo: 'Full squat with the form cues in the guide below.',
+        howTo: 'Feet shoulder-width, sit between the heels to full depth, knees track over the toes.',
       },
       {
         id: 'squat-3',

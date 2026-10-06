@@ -1,5 +1,5 @@
 import { CaretLeft } from '@phosphor-icons/react';
-import { useState, type CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { completeOnboarding } from '@/app/commands/onboarding';
 import { useToday } from '@/app/stores/clock';
@@ -87,6 +87,7 @@ function Awaken({ onAccept }: { onAccept: () => void }) {
   const [declined, setDeclined] = useState(false);
   return (
     <div className="flex flex-1 flex-col justify-end gap-8 px-4 pt-10 pb-[calc(24px+var(--safe-bottom))]">
+      <h1 className="sr-only">Become a Player</h1>
       <AppMark size={56} />
       <SystemWindow label="Notification" reveal>
         <p className="text-22 font-medium text-ink">
@@ -273,6 +274,19 @@ function LadderPicker({
   onChange: (step: number) => void;
 }) {
   const l = LADDERS[ladder];
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const last = l.steps.length;
+    let next: number;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = value === last ? 1 : value + 1;
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = value === 1 ? last : value - 1;
+    else if (e.key === 'Home') next = 1;
+    else if (e.key === 'End') next = last;
+    else return;
+    e.preventDefault();
+    onChange(next);
+    refs.current[next - 1]?.focus();
+  };
   return (
     <section aria-labelledby={`l-${ladder}`} className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -281,7 +295,12 @@ function LadderPicker({
         </h2>
         <Pips total={l.steps.length} current={value} label={`${l.name} ladder`} />
       </div>
-      <div role="radiogroup" aria-labelledby={`l-${ladder}`} className="flex flex-col gap-1.5">
+      <div
+        role="radiogroup"
+        aria-labelledby={`l-${ladder}`}
+        onKeyDown={onKey}
+        className="divide-y divide-line overflow-hidden rounded-card border border-line-2 bg-s1"
+      >
         {l.steps.map((s, i) => {
           const n = i + 1;
           const on = n === value;
@@ -289,33 +308,32 @@ function LadderPicker({
           return (
             <button
               key={s.id}
+              ref={(el) => {
+                refs.current[i] = el;
+              }}
               type="button"
               role="radio"
               aria-checked={on}
+              tabIndex={on ? 0 : -1}
               onClick={() => onChange(n)}
               className={cn(
-                'flex min-h-14 tap items-start gap-3 rounded-ctl border px-3 py-2.5 text-left transition-colors duration-(--dur-1)',
-                on
-                  ? 'border-sys bg-sys-dim'
-                  : 'border-line-2 bg-s1 hover:border-line-3 active:bg-s2',
+                'relative flex min-h-12 w-full tap items-start gap-3 px-3 py-3 text-left transition-colors duration-(--dur-1) outline-offset-[-2px]',
+                on ? 'bg-sys-dim' : 'hover:bg-s2 active:bg-s3',
               )}
             >
-              <span
-                className={cn('w-5 shrink-0 pt-0.5 num text-15', on ? 'text-sys' : 'text-ink-3')}
-              >
+              {on && <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-sys" />}
+              <span className={cn('w-5 shrink-0 num text-15', on ? 'text-sys' : 'text-ink-3')}>
                 {n}
               </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="flex items-baseline justify-between gap-2">
-                  <span className={cn('text-15', on ? 'font-medium text-ink' : 'text-ink')}>
-                    {s.name}
-                  </span>
+                  <span className={cn('text-15 text-ink', on && 'font-medium')}>{s.name}</span>
                   <span className="shrink-0 num text-13 text-ink-2">
                     {s.range[0]}-{s.range[1]} {unit}
                     {s.perSide ? '/side' : ''}
                   </span>
                 </span>
-                <span className="text-13 text-ink-2">{s.howTo}</span>
+                {on && <span className="text-13 text-ink-2">{s.howTo}</span>}
               </span>
             </button>
           );

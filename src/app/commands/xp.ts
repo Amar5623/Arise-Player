@@ -81,7 +81,7 @@ export async function celebrate(
       to: summary.level,
       rankFrom: before.rank,
       rankTo: summary.rank,
-      deltas: STAT_KEYS.map((s) => ({ stat: s, amount: b[s] - a[s] })).filter((d) => d.amount > 0),
+      deltas: STAT_KEYS.map((s) => ({ stat: s, from: a[s], to: b[s] })).filter((d) => d.to > d.from),
     });
     haptic('level');
     play('level');

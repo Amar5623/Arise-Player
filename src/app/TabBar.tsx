@@ -63,7 +63,11 @@ export function TabBar({ preview, className }: TabBarProps) {
                   // Tapping the active tab pops to its root, then scrolls to the top.
                   e.preventDefault();
                   if (pathname !== to) navigate(to);
-                  else window.scrollTo({ top: 0, behavior: 'smooth' });
+                  else
+                    window.scrollTo({
+                      top: 0,
+                      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                    });
                 }}
                 className="group relative flex min-w-0 tap flex-col items-center justify-center gap-1 px-1 py-2 outline-offset-[-4px] transition-colors duration-(--dur-1) active:bg-s2"
               >

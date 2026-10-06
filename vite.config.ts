@@ -121,6 +121,8 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//],
           cleanupOutdatedCaches: true,
+          // Control the page on first install, so lazy screens are cached before the first offline launch.
+          clientsClaim: true,
         },
       }),
     ],

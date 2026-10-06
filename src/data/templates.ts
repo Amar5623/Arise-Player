@@ -1,5 +1,5 @@
 /** Main quest templates (brief §4.5). Values are starting suggestions the owner edits. */
-import type { Stat } from '@/engine/types';
+import type { GoalSource, Stat } from '@/engine/types';
 
 export interface GoalTemplate {
   id: string;
@@ -11,6 +11,7 @@ export interface GoalTemplate {
   /** Suggested length in days. */
   days: number;
   money?: boolean;
+  source?: GoalSource;
 }
 
 export const GOAL_TEMPLATES: readonly GoalTemplate[] = [
@@ -32,6 +33,7 @@ export const GOAL_TEMPLATES: readonly GoalTemplate[] = [
     start: 0,
     target: 1,
     days: 120,
+    source: 'ladder.pull',
   },
   {
     id: 'waist-80',
@@ -41,6 +43,7 @@ export const GOAL_TEMPLATES: readonly GoalTemplate[] = [
     start: 88,
     target: 80,
     days: 180,
+    source: 'body.waist',
   },
   {
     id: 'read-12',

@@ -75,16 +75,23 @@
       transform: scaleY(0);
     }
   }
-  .sys-scan[data-play] {
+  /* The scan travels by transform on a full-height track: no layout work, no layout shift. */
+  .sys-scan-track {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
     animation: sys-scan-down 340ms var(--ease-out) 100ms both;
+  }
+  .sys-scan-track > .sys-scan {
+    top: 0;
   }
   @keyframes sys-scan-down {
     from {
-      top: 0%;
+      transform: translateY(0);
       opacity: 1;
     }
     to {
-      top: 100%;
+      transform: translateY(100%);
       opacity: 0;
     }
   }
@@ -99,7 +106,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .sys-cover,
-    .sys-scan[data-play] {
+    .sys-scan-track {
       display: none;
     }
     .sys-tick[data-play] {
@@ -208,7 +215,8 @@
 @layer components {
   /* Page entrance: slides from the side it came from (--enter-x), never starts invisible. */
   .page-enter {
-    animation: page-in var(--page-dur, 220ms) var(--ease-out) both;
+    /* backwards, not both: a transform left behind would trap the fixed CTA dock and tab bar. */
+    animation: page-in var(--page-dur, 220ms) var(--ease-out) backwards;
   }
   @keyframes page-in {
     from {

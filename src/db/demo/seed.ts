@@ -252,6 +252,7 @@ export async function seedDemo(today: ISODate): Promise<void> {
       deadline: addDays(today, 110),
       updates: [{ date: joined, value: 0 }],
       done: false,
+      source: 'ladder.pull',
     },
     {
       id: uid(),
@@ -268,6 +269,7 @@ export async function seedDemo(today: ISODate): Promise<void> {
         { date: addDays(joined, 20), value: 84.5 },
       ],
       done: false,
+      source: 'body.waist',
     },
     {
       id: uid(),

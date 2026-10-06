@@ -55,6 +55,7 @@ export function ClearedScreen() {
 
   return (
     <div className="flex min-h-dvh flex-col gap-6 px-4 pt-[calc(20px+var(--safe-top))] pb-[calc(96px+var(--safe-bottom))]">
+      <h1 className="sr-only">Gate cleared: {session.name}</h1>
       <SystemWindow tone="ok" label="Gate cleared" reveal>
         <p className="hud-22 text-ink">{session.name}</p>
         <p className="text-13 text-ink-2">

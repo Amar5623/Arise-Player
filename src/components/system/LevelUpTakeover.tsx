@@ -1,5 +1,6 @@
 import { AnimatePresence, useReducedMotion, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Rank, Stat } from '@/engine/types';
 import { Button } from '@/components/ui/Button';
 import { EASE_OUT, SPRING_SOFT } from '@/lib/motion';
@@ -11,7 +12,8 @@ export interface LevelUpData {
   to: number;
   rankFrom: Rank;
   rankTo: Rank;
-  deltas: { stat: Stat; amount: number }[];
+  /** Displayed stat values before and after. */
+  deltas: { stat: Stat; from: number; to: number }[];
 }
 
 const TOTAL_MS = 2500;
@@ -47,6 +49,8 @@ function Takeover({ data, onDone }: { data: LevelUpData; onDone: () => void }) {
   const [shown, setShown] = useState(reduce ? data.to : data.from);
   const rankUp = data.rankFrom !== data.rankTo;
   const continueRef = useRef<HTMLButtonElement>(null);
+  // Keyboard users get as long as they need: any key except Escape stops the auto-close.
+  const [held, setHeld] = useState(false);
   // Timers must not restart when the parent re-renders with a new callback.
   const doneRef = useRef(onDone);
   useEffect(() => {
@@ -56,19 +60,31 @@ function Takeover({ data, onDone }: { data: LevelUpData; onDone: () => void }) {
   useEffect(() => {
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     continueRef.current?.focus({ preventScroll: true });
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && doneRef.current();
-    window.addEventListener('keydown', onKey);
+    // Everything behind the takeover is out of reach while it is up.
+    const root = document.getElementById('root');
+    root?.setAttribute('inert', '');
     const morph = window.setTimeout(() => setShown(data.to), reduce ? 0 : MORPH_MS);
-    const done = window.setTimeout(() => doneRef.current(), TOTAL_MS);
     return () => {
-      window.removeEventListener('keydown', onKey);
       window.clearTimeout(morph);
-      window.clearTimeout(done);
+      root?.removeAttribute('inert');
       opener?.focus({ preventScroll: true });
     };
   }, [data.to, reduce]);
 
-  return (
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') doneRef.current();
+      else setHeld(true);
+    };
+    window.addEventListener('keydown', onKey);
+    const done = held ? 0 : window.setTimeout(() => doneRef.current(), TOTAL_MS);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.clearTimeout(done);
+    };
+  }, [held]);
+
+  return createPortal(
     <motion.div
       role="dialog"
       aria-modal="true"
@@ -139,10 +155,7 @@ function Takeover({ data, onDone }: { data: LevelUpData; onDone: () => void }) {
         </div>
 
         {data.deltas.length > 0 && (
-          <ul
-            aria-label="Stat gains"
-            className="grid grid-cols-2 gap-x-8 gap-y-3 border-t border-line pt-5"
-          >
+          <ul aria-label="Stat gains" className="flex flex-col gap-2.5 border-t border-line pt-5">
             {data.deltas.map((d, i) => (
               <motion.li
                 key={d.stat}
@@ -152,7 +165,14 @@ function Takeover({ data, onDone }: { data: LevelUpData; onDone: () => void }) {
                 transition={{ delay: 0.7 + i * 0.04, duration: 0.25, ease: EASE_OUT }}
               >
                 <StatMark stat={d.stat} />
-                <span className="num text-17 text-ink">+{d.amount}</span>
+                <span className="num text-17">
+                  <span className="text-ink-3">{d.from}</span>
+                  <span aria-hidden className="mx-2 font-sans text-ink-3">
+                    →
+                  </span>
+                  <span className="sr-only"> to </span>
+                  <span className="text-ink">{d.to}</span>
+                </span>
               </motion.li>
             ))}
           </ul>
@@ -160,12 +180,14 @@ function Takeover({ data, onDone }: { data: LevelUpData; onDone: () => void }) {
 
         <div className="flex flex-col gap-3">
           <span aria-hidden className="block h-0.5 overflow-hidden bg-s3">
-            <motion.span
-              className="block h-full origin-left bg-rare"
-              initial={{ scaleX: 1 }}
-              animate={{ scaleX: 0 }}
-              transition={{ duration: TOTAL_MS / 1000, ease: 'linear' }}
-            />
+            {!held && (
+              <motion.span
+                className="block h-full origin-left bg-rare"
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: 0 }}
+                transition={{ duration: TOTAL_MS / 1000, ease: 'linear' }}
+              />
+            )}
           </span>
           <Button
             ref={continueRef}
@@ -180,6 +202,7 @@ function Takeover({ data, onDone }: { data: LevelUpData; onDone: () => void }) {
           </Button>
         </div>
       </div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }

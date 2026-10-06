@@ -24,8 +24,8 @@ const EXCEPTIONS = {
   progressWithoutListsTarget: ['Sprawl', 'Bear crawl'],
   /** Friday's circuit is rounds, not sets; its rests are "0-15 sec" between moves. */
   circuitDay: 'Friday',
-  /** Wording changed on purpose: the docx says "3 x 15", the app levels up on every prescribed set. */
-  howToEdited: ['push-5'],
+  /** Wording changed on purpose: push-5 says "3 x 15" in the docx but the app levels up on every set; squat-2 pointed at a guide the app does not have. */
+  howToEdited: ['push-5', 'squat-2'],
 };
 
 type Row = (string | number)[];

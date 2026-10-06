@@ -20,7 +20,7 @@ export function ScreenHeader({ title, back, actions, sub, className }: ScreenHea
   return (
     <header
       className={cn(
-        'sticky top-0 z-(--z-sticky) flex min-h-14 items-center gap-1 bg-base/92 px-2 pt-(--safe-top) backdrop-blur-bar',
+        'sticky top-0 z-(--z-sticky) flex min-h-14 items-center gap-1 border-b border-line bg-base px-2 pt-(--safe-top)',
         className,
       )}
     >

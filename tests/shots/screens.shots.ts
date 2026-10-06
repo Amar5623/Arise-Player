@@ -1,4 +1,4 @@
-import { test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { settle, unfixChrome, VIEWPORTS } from './helpers';
 
 // Real time on purpose: Playwright's fake clock stalls Motion's entrance animations after a reload.
@@ -16,6 +16,17 @@ async function shoot(page: Page, name: string, width: number, full = true) {
   await settle(page);
   await clearToasts(page);
   await page.screenshot({ path: `screenshots/${name}-${width}-fold.png` });
+  // A transformed ancestor traps position:fixed; the dock must sit on the screen's bottom edge.
+  const dock = await page.evaluate(() => {
+    const el = document.querySelector('[data-cta-dock]');
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom, vh: window.innerHeight };
+  });
+  if (dock) {
+    expect(dock.top, `${name}: CTA dock off screen`).toBeGreaterThanOrEqual(0);
+    expect(dock.bottom, `${name}: CTA dock off screen`).toBeLessThanOrEqual(dock.vh + 1);
+  }
   if (full) {
     await unfixChrome(page);
     await page.screenshot({ path: `screenshots/${name}-${width}.png`, fullPage: true });
@@ -96,7 +107,7 @@ for (const vp of VIEWPORTS) {
         await page.screenshot({ path: `screenshots/stat-sheet-${vp.width}.png` });
         await page.keyboard.press('Escape');
         await page.goto('/status/history');
-        await page.getByRole('grid').waitFor();
+        await page.getByRole('list', { name: 'Days' }).waitFor();
         await shoot(page, 'history', vp.width);
         await page.goto('/status/report');
         await page.getByRole('heading', { name: 'Weekly System Report' }).waitFor();

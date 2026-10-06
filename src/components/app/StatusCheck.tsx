@@ -43,7 +43,7 @@ export function StatusCheck({
           max={12}
           step={0.5}
           format={(v) => v.toFixed(1)}
-          className="w-44"
+          className="shrink-0"
         />
       </div>
       <fieldset className="flex flex-col gap-2">

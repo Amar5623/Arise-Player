@@ -115,6 +115,13 @@ export function GoalScreen() {
                 Save
               </Button>
             </div>
+            {g.source && (
+              <p className="text-13 text-ink-2">
+                {g.source === 'body.waist'
+                  ? 'Also updates when you log a waist measurement.'
+                  : 'Also updates when you log full pull-ups in a Gate.'}
+              </p>
+            )}
           </section>
         )}
 

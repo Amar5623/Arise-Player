@@ -45,14 +45,14 @@ function WeekStrip({ today, done }: { today: string; done: Set<string> }) {
             key={d.day}
             aria-current={isToday ? 'date' : undefined}
             className={cn(
-              'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-ctl border',
+              'flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-ctl border px-0.5',
               isToday ? 'border-sys bg-sys-dim' : 'border-line bg-s1',
             )}
           >
             <span className={cn('hud-11', isToday ? 'text-sys' : 'text-ink-3')}>
               {DAY_SHORT[i]}
             </span>
-            <span className={cn('text-11', isToday ? 'text-ink' : 'text-ink-2')}>
+            <span className={cn('max-w-full truncate text-11', isToday ? 'text-ink' : 'text-ink-2')}>
               {SHORT_FOCUS[i]}
             </span>
             {cleared ? (
@@ -189,7 +189,7 @@ export function GateScreen() {
           onChange={(v) => void setQuick(today, v === 'quick')}
           options={[
             { value: 'full', label: 'Full session' },
-            { value: 'quick', label: 'Short on time (30 min)' },
+            { value: 'quick', label: 'Short, 30 min' },
           ]}
         />
       )}

@@ -45,9 +45,12 @@ export function Stepper({
   const repeated = useRef(false);
   const cancelled = useRef(false);
   const [announce, setAnnounce] = useState('');
+  // Announce only values the user set, never the initial value on mount.
+  const touched = useRef(false);
 
   useEffect(() => {
     latest.current = value;
+    if (!touched.current) return;
     const t = window.setTimeout(
       () => setAnnounce(`${format(value)}${unit ? ` ${unit}` : ''}`),
       500,
@@ -68,6 +71,7 @@ export function Stepper({
     );
     if (next === latest.current) return;
     latest.current = next;
+    touched.current = true;
     onChange(next);
     haptic('tick');
   };
@@ -135,8 +139,8 @@ export function Stepper({
       >
         <Minus weight="regular" />
       </button>
-      <div className="flex min-w-0 flex-col items-center">
-        <span className={cn('num font-medium tracking-tight text-ink', lg ? 'text-64' : 'text-40')}>
+      <div className="flex min-w-[3ch] flex-1 flex-col items-center">
+        <span className={cn('num font-medium tracking-tight whitespace-nowrap text-ink', lg ? 'text-64' : sm ? 'text-28' : 'text-40')}>
           {format(value)}
         </span>
         {unit && <span className="text-13 text-ink-2">{unit}</span>}

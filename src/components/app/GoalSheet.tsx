@@ -7,7 +7,7 @@ import { Field } from '@/components/ui/Field';
 import { Sheet } from '@/components/ui/Sheet';
 import { GOAL_TEMPLATES } from '@/data/templates';
 import { STATS } from '@/data/stats';
-import { STAT_KEYS, type Goal, type Stat } from '@/engine/types';
+import { STAT_KEYS, type Goal, type GoalSource, type Stat } from '@/engine/types';
 import { addDays, isISODate } from '@/lib/dates';
 import { cn } from '@/lib/cn';
 
@@ -18,6 +18,7 @@ interface Draft {
   start: string;
   target: string;
   deadline: string;
+  source?: GoalSource;
 }
 
 const fromGoal = (g: Goal): Draft => ({
@@ -27,6 +28,7 @@ const fromGoal = (g: Goal): Draft => ({
   start: String(g.start),
   target: String(g.target),
   deadline: g.deadline ?? '',
+  source: g.source,
 });
 const blank: Draft = { title: '', stat: 'WLT', unit: '', start: '0', target: '', deadline: '' };
 
@@ -74,6 +76,7 @@ export function GoalSheet({ open, onOpenChange, onDone, goal, currency }: Props)
         start: num(d.start),
         target: num(d.target),
         deadline: d.deadline || undefined,
+        source: d.source,
         current: goal?.current,
       },
       today,
@@ -102,7 +105,7 @@ export function GoalSheet({ open, onOpenChange, onDone, goal, currency }: Props)
       <div className="flex flex-col gap-4">
         {!goal && (
           <div
-            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+            className="flex flex-wrap gap-2"
             role="list"
             aria-label="Templates"
           >
@@ -119,9 +122,10 @@ export function GoalSheet({ open, onOpenChange, onDone, goal, currency }: Props)
                     start: String(t.start),
                     target: String(t.target),
                     deadline: addDays(today, t.days),
+                    source: t.source,
                   })
                 }
-                className="shrink-0 tap rounded-ctl border border-line-2 bg-s1 px-3 py-2 text-left text-13 text-ink hover:border-line-3 active:bg-s3"
+                className="min-h-11 tap rounded-ctl border border-line-2 bg-s1 px-3 py-2 text-left text-13 text-ink hover:border-line-3 active:bg-s3"
               >
                 {t.title}
               </button>

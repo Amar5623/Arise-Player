@@ -73,9 +73,7 @@ test('onboarding to Gate cleared, level-up, and next-day penalty', async ({ page
   );
 
   // Gate in Focus Mode
-  await page.getByRole('button', { name: 'Start Gate' }).click();
-  await expect(page).toHaveURL(/\/train$/);
-  await expect(page.getByRole('heading', { name: 'Push + Core' })).toBeVisible();
+  // Today's dock goes straight into Focus Mode.
   await page.getByRole('button', { name: 'Start Gate' }).click();
   await expect(page).toHaveURL(/\/gate\/focus$/);
   for (const box of await page.getByRole('checkbox').all()) await box.click();
@@ -110,6 +108,8 @@ test('onboarding to Gate cleared, level-up, and next-day penalty', async ({ page
   // Next day: yesterday closed under 50%, so a penalty is issued.
   await shiftDate(page, 24 * 3600 * 1000);
   await page.goto('/today');
-  await expect(page.getByRole('alert').filter({ hasText: 'Penalty issued' })).toBeVisible();
+  // Toasts are announced through the live regions in Root, so look for the visible quest.
+  await expect(page.getByRole('group', { name: 'Penalty' })).toBeVisible();
+  await expect(page.locator('[aria-live]').filter({ hasText: 'Penalty issued' })).toHaveCount(1);
   await expect(page.getByRole('checkbox', { name: '20-min brisk walk' })).toBeVisible();
 });
