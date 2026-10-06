@@ -213,7 +213,7 @@ meta:      'key'
 | `prescription` | Target clamp, deload −1 set (min 2), FATIGUED −1 set + RPE ≤ 7 note, INJURED = warm-up + recovery flow, quick subset, circuit caps | Each modifier and combinations (deload + fatigued + quick) |
 | `progression` | Double progression per exercise and ladder: pain step-back, unlock, mastered, +1 rep / +5 s, fail counting, −2 increments, never-progress items | Every branch in §7 of the brief, reps vs holds, per-side, skipped vs missing sets |
 | `xp` | Gate XP (4/set to the exercise stat, +2/warm-up item AGI, +25 clear STR), unlock +60, goal +200, daily bonus +30 | Totals, idempotent bonus |
-| `ledger` | Fold `XpEvent[]` → `Player` cache | Undo, ordering |
+| `ledger` (in `levels.ts`: `summarizeXp`) | Fold `XpEvent[]` → XP, level, rank, stat XP | Undo events cancel exactly |
 | `quests` | Build today's quests from enabled habits, the gate, penalty, weigh-in, walk and AI; tiered titles and details (protein grams from weight rounded to 5, lights-out time = wake − 8 h) | Scheduled habits (Sun / Mon / first Sunday of month), tier text |
 | `tiers` | 7-day evaluation, ≥4 appearances, ≥85% up, <40% down, `since` reset, min/max tier | Edge windows, unopened days count as not done |
 | `closeout` | For every unevaluated past day since `joinedAt`: ratio, missed, penalty for today if yesterday < 50%, streak notice if ≥ 80% | Gaps, first day, multiple days offline |
@@ -398,3 +398,12 @@ DESIGN.md · PRODUCT.md · PLAN.md · README.md · vercel.json
   - Weigh-in: every 4 weeks by default, with an 8-week option.
   - Proposed rules in §5 and §6.5: accepted as written.
   - Git: branch `main`, commit at the end of each phase.
+- 2026-10-06, Phase 2 review:
+  - Primary buttons stay solid System Blue.
+  - The level-up takeover stays bottom-anchored.
+  - Proceed to Phase 3.
+- 2026-10-06, Phase 3:
+  - Engine done: 14 modules, 97 Vitest tests, run in Asia/Kolkata and America/New_York.
+  - `npm run check:plan` re-reads the docx and xlsx and asserts `src/data` matches them. It is also part of `npm test`.
+  - Shadowboxing exports to the tracker as rounds.
+  - `/impeccable critique` and `audit` were not run this phase, because no UI changed.

@@ -72,7 +72,10 @@ export function Button({
       <span>{children}</span>
       {trailing && <span className="-mr-0.5 flex shrink-0 [&_svg]:size-5">{trailing}</span>}
       {loading && (
-        <span aria-hidden className="scan-track absolute inset-x-1.5 bottom-1 rounded-mark bg-transparent" />
+        <span
+          aria-hidden
+          className="scan-track absolute inset-x-1.5 bottom-1 rounded-mark bg-transparent"
+        />
       )}
     </button>
   );

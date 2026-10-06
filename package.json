@@ -17,7 +17,7 @@
     "test:watch": "TZ=Asia/Kolkata vitest",
     "e2e": "playwright test",
     "shots": "playwright test --project=shots",
-    "check:plan": "tsx scripts/check-plan.ts"
+    "check:plan": "vitest run scripts/check-plan.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
