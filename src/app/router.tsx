@@ -1,4 +1,10 @@
-import { createBrowserRouter, redirect, type LoaderFunctionArgs } from 'react-router';
+import type { ComponentType } from 'react';
+import {
+  createBrowserRouter,
+  redirect,
+  type LoaderFunctionArgs,
+  type RouteObject,
+} from 'react-router';
 import { repo } from '@/db/repos';
 import { Root } from './Root';
 import { TabsLayout } from './TabsLayout';
@@ -14,12 +20,31 @@ async function gate({ request }: LoaderFunctionArgs) {
   return null;
 }
 
-const screen =
-  <T extends Record<string, unknown>>(load: () => Promise<T>, name: keyof T) =>
-  async () => {
-    const mod = await load();
-    return { Component: mod[name] as React.ComponentType };
+/** A lazily loaded screen: each one is its own chunk. */
+function page<T extends Record<string, unknown>>(
+  path: string,
+  load: () => Promise<T>,
+  name: keyof T,
+): RouteObject {
+  return {
+    path,
+    lazy: async () => ({ Component: (await load())[name] as ComponentType }),
   };
+}
+
+const tabs: RouteObject[] = [
+  page('today', () => import('@/screens/today/TodayScreen'), 'TodayScreen'),
+  page('train', () => import('@/screens/train/GateScreen'), 'GateScreen'),
+  page('train/exercise/:id', () => import('@/screens/train/ExerciseScreen'), 'ExerciseScreen'),
+  page('status', () => import('@/screens/status/StatusScreen'), 'StatusScreen'),
+  page('status/history', () => import('@/screens/status/HistoryScreen'), 'HistoryScreen'),
+  page('status/history/:date', () => import('@/screens/status/DayScreen'), 'DayScreen'),
+  page('status/report', () => import('@/screens/status/ReportScreen'), 'ReportScreen'),
+  page('quests', () => import('@/screens/quests/QuestsScreen'), 'QuestsScreen'),
+  page('quests/:goalId', () => import('@/screens/quests/GoalScreen'), 'GoalScreen'),
+  page('settings', () => import('@/screens/settings/SettingsScreen'), 'SettingsScreen'),
+  page('settings/:section', () => import('@/screens/settings/SettingsScreen'), 'SettingsScreen'),
+];
 
 /** Created on demand: the router starts its first navigation (and the gate loader) immediately. */
 export const createRouter = () =>
@@ -31,36 +56,19 @@ export const createRouter = () =>
       shouldRevalidate: ({ currentUrl, nextUrl }) => currentUrl.pathname !== nextUrl.pathname,
       children: [
         { index: true, loader: () => redirect('/today') },
-        {
-          path: 'onboarding/:step',
-          lazy: screen(() => import('@/screens/onboarding/OnboardingScreen'), 'OnboardingScreen'),
-        },
-        {
-          element: <TabsLayout />,
-          children: [
-            {
-              path: 'today',
-              lazy: screen(() => import('@/screens/today/TodayScreen'), 'TodayScreen'),
-            },
-            {
-              path: 'train',
-              lazy: screen(() => import('@/screens/train/GateScreen'), 'GateScreen'),
-            },
-            {
-              path: 'train/exercise/:id',
-              lazy: screen(() => import('@/screens/train/ExerciseScreen'), 'ExerciseScreen'),
-            },
-          ],
-        },
-        {
-          path: 'gate/focus',
-          lazy: screen(() => import('@/screens/train/FocusScreen'), 'FocusScreen'),
-        },
-        {
-          path: 'gate/cleared/:sessionId',
-          lazy: screen(() => import('@/screens/train/ClearedScreen'), 'ClearedScreen'),
-        },
-        { path: 'kit', lazy: screen(() => import('@/screens/kit/KitScreen'), 'KitScreen') },
+        page(
+          'onboarding/:step',
+          () => import('@/screens/onboarding/OnboardingScreen'),
+          'OnboardingScreen',
+        ),
+        { element: <TabsLayout />, children: tabs },
+        page('gate/focus', () => import('@/screens/train/FocusScreen'), 'FocusScreen'),
+        page(
+          'gate/cleared/:sessionId',
+          () => import('@/screens/train/ClearedScreen'),
+          'ClearedScreen',
+        ),
+        page('kit', () => import('@/screens/kit/KitScreen'), 'KitScreen'),
         { path: '*', loader: () => redirect('/today') },
       ],
     },

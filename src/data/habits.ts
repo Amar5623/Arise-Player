@@ -17,6 +17,8 @@ export interface HabitContext {
 
 export interface HabitDef {
   id: string;
+  /** Plain name, without tier numbers. */
+  label: string;
   area: Exclude<Area, 'training' | 'penalty' | 'bonus'>;
   stat: Stat;
   xp: number;
@@ -34,6 +36,7 @@ export const HABITS: readonly HabitDef[] = [
   /* Face & looks (CHA) */
   {
     id: 'am-skin',
+    label: 'AM skincare',
     area: 'face',
     stat: 'CHA',
     xp: 8,
@@ -44,6 +47,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'pm-skin',
+    label: 'PM skincare',
     area: 'face',
     stat: 'CHA',
     xp: 8,
@@ -54,6 +58,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'chin-tucks',
+    label: 'Chin tucks',
     area: 'face',
     stat: 'CHA',
     xp: 8,
@@ -65,6 +70,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'grooming',
+    label: 'Grooming check',
     area: 'face',
     stat: 'CHA',
     xp: 10,
@@ -75,6 +81,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'photos',
+    label: 'Progress photos',
     area: 'face',
     stat: 'CHA',
     xp: 15,
@@ -87,6 +94,7 @@ export const HABITS: readonly HabitDef[] = [
   /* Diet & recovery (VIT) */
   {
     id: 'protein',
+    label: 'Protein',
     area: 'diet',
     stat: 'VIT',
     xp: 12,
@@ -98,6 +106,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'water',
+    label: 'Water',
     area: 'diet',
     stat: 'VIT',
     xp: 8,
@@ -109,6 +118,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'fruit-veg',
+    label: 'Fruit and veg',
     area: 'diet',
     stat: 'VIT',
     xp: 8,
@@ -120,6 +130,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'no-junk',
+    label: 'No junk',
     area: 'diet',
     stat: 'VIT',
     xp: 10,
@@ -130,6 +141,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'sleep',
+    label: 'Lights out',
     area: 'diet',
     stat: 'VIT',
     xp: 12,
@@ -142,6 +154,7 @@ export const HABITS: readonly HabitDef[] = [
   /* Body (AGI) */
   {
     id: 'steps',
+    label: 'Steps',
     area: 'body',
     stat: 'AGI',
     xp: 12,
@@ -153,6 +166,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'desk-breaks',
+    label: 'Desk breaks',
     area: 'body',
     stat: 'AGI',
     xp: 8,
@@ -165,6 +179,7 @@ export const HABITS: readonly HabitDef[] = [
   /* Mind (INT) */
   {
     id: 'read',
+    label: 'Reading',
     area: 'mind',
     stat: 'INT',
     xp: 12,
@@ -176,6 +191,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'deep-work',
+    label: 'Deep work',
     area: 'mind',
     stat: 'INT',
     xp: 15,
@@ -187,6 +203,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'social',
+    label: 'Social media limit',
     area: 'mind',
     stat: 'INT',
     xp: 10,
@@ -198,6 +215,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'journal',
+    label: 'Journal',
     area: 'mind',
     stat: 'INT',
     xp: 6,
@@ -208,6 +226,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'meditate',
+    label: 'Meditation',
     area: 'mind',
     stat: 'INT',
     xp: 8,
@@ -221,6 +240,7 @@ export const HABITS: readonly HabitDef[] = [
   /* Wealth (WLT) */
   {
     id: 'expenses',
+    label: 'Expense log',
     area: 'wealth',
     stat: 'WLT',
     xp: 8,
@@ -231,6 +251,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'no-impulse',
+    label: 'No impulse buys',
     area: 'wealth',
     stat: 'WLT',
     xp: 8,
@@ -241,6 +262,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'save',
+    label: 'Pay yourself first',
     area: 'wealth',
     stat: 'WLT',
     xp: 20,
@@ -251,6 +273,7 @@ export const HABITS: readonly HabitDef[] = [
   },
   {
     id: 'income-skill',
+    label: 'Income-skill block',
     area: 'wealth',
     stat: 'WLT',
     xp: 15,

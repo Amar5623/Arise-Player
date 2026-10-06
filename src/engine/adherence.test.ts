@@ -26,6 +26,10 @@ describe('adherence and record', () => {
     expect(byDate.get('2026-10-05')?.ratio).toBe(0);
     expect(byDate.get('2026-10-06')).toMatchObject({ ratio: 0.9, done: 9, total: 10 });
     expect(byDate.get('2026-10-07')).toMatchObject({ ratio: null, today: true });
+    const started = heatmap('2026-10-07', recordMap(day('2026-10-07', 0, 10)), '2026-10-05');
+    expect(started.find((c) => c.today)?.ratio).toBeNull();
+    const going = heatmap('2026-10-07', recordMap(day('2026-10-07', 3, 10)), '2026-10-05');
+    expect(going.find((c) => c.today)?.ratio).toBe(0.3);
     expect(byDate.get('2026-10-08')?.ratio).toBeNull();
   });
 

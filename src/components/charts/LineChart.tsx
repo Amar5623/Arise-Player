@@ -15,7 +15,18 @@ export interface LineChartProps {
   height?: number;
   /** Decimal places for values. */
   digits?: number;
+  /** Formats the end label and tooltip (e.g. money). Defaults to the number plus unit. */
+  format?: (v: number) => string;
   className?: string;
+}
+
+/** Axis ticks stay short: 42.5k, 3L (Indian lakh) for large values. */
+function compact(v: number, digits: number): string {
+  const a = Math.abs(v);
+  const trim = (n: number) => String(Number(n.toFixed(1)));
+  if (a >= 100000) return `${trim(v / 100000)}L`;
+  if (a >= 10000) return `${trim(v / 1000)}k`;
+  return v.toFixed(digits);
 }
 
 function niceTicks(min: number, max: number, count = 3): number[] {
@@ -37,11 +48,13 @@ export function LineChart({
   title,
   height = 160,
   digits = 0,
+  format,
   className,
 }: LineChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const fmt = (v: number) => v.toFixed(digits);
+  const full = format ?? ((v: number) => `${fmt(v)} ${unit}`);
 
   if (points.length < 2) return null;
 
@@ -49,8 +62,12 @@ export function LineChart({
   const ticks = niceTicks(Math.min(...values), Math.max(...values));
   const lo = ticks[0] ?? 0;
   const hi = ticks[ticks.length - 1] ?? 1;
-  const left = 36;
-  const right = 64;
+  const lastI = points.length - 1;
+  const last = points[lastI];
+  const tickText = ticks.map((t) => compact(t, digits));
+  const left = Math.max(30, Math.max(...tickText.map((t) => t.length)) * 6.8 + 10);
+  const endText = last ? full(last.value) : '';
+  const right = Math.max(48, endText.length * 6.8 + 14);
   const top = 10;
   const bottom = 22;
   const w = Math.max(width, 160);
@@ -59,8 +76,6 @@ export function LineChart({
   const d = points
     .map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.value).toFixed(1)}`)
     .join(' ');
-  const lastI = points.length - 1;
-  const last = points[lastI];
   const active = hover !== null ? points[hover] : undefined;
 
   const onMove = (clientX: number, rect: DOMRect) => {
@@ -75,7 +90,7 @@ export function LineChart({
         width={w}
         height={height}
         role="img"
-        aria-label={`${title}: from ${fmt(points[0]?.value ?? 0)} to ${fmt(last?.value ?? 0)} ${unit}`}
+        aria-label={`${title}: from ${full(points[0]?.value ?? 0)} to ${endText}`}
         className="touch-pan-y"
         onPointerMove={(e) =>
           e.pointerType === 'mouse' && onMove(e.clientX, e.currentTarget.getBoundingClientRect())
@@ -83,7 +98,7 @@ export function LineChart({
         onPointerDown={(e) => onMove(e.clientX, e.currentTarget.getBoundingClientRect())}
         onPointerLeave={(e) => e.pointerType === 'mouse' && setHover(null)}
       >
-        {ticks.map((t) => (
+        {ticks.map((t, i) => (
           <g key={t}>
             <line x1={left} x2={w - right} y1={y(t)} y2={y(t)} stroke="var(--color-line)" />
             <text
@@ -95,7 +110,7 @@ export function LineChart({
               fontFamily="var(--font-mono)"
               fontSize={11}
             >
-              {fmt(t)}
+              {tickText[i]}
             </text>
           </g>
         ))}
@@ -144,7 +159,7 @@ export function LineChart({
               fontFamily="var(--font-mono)"
               fontSize={11}
             >
-              {fmt(last.value)} {unit}
+              {endText}
             </text>
           </>
         )}
@@ -174,9 +189,7 @@ export function LineChart({
           style={{ left: Math.min(w - 48, Math.max(48, x(hover))) }}
         >
           <span className="num text-11 text-ink-2">{active.label}</span>
-          <span className="num text-13 text-ink">
-            {fmt(active.value)} {unit}
-          </span>
+          <span className="num text-13 text-ink">{full(active.value)}</span>
         </div>
       )}
       <div className="sr-only">

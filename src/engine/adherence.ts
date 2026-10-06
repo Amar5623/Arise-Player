@@ -38,9 +38,11 @@ export function heatmap(
     if (date > today || date < joinedAt) return { ...base, ratio: null };
     const r = records.get(date);
     const required = r?.quests.filter((q) => !q.optional) ?? [];
+    // Today is still in progress: it only shows once something is done, never as missed.
+    const ratio = ratioOf(r);
     return {
       ...base,
-      ratio: date === today && !r ? null : ratioOf(r),
+      ratio: date === today && ratio === 0 ? null : ratio,
       done: required.filter((q) => q.done).length,
       total: required.length,
     };

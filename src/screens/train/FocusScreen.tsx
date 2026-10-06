@@ -141,7 +141,7 @@ function Focus({ p, draft: stored }: { p: Prescription; draft: GateDraft }) {
       <motion.main
         key={index}
         className="flex flex-1 touch-pan-y flex-col px-4 pt-4"
-        initial={{ opacity: 0, x: 32 * dir }}
+        initial={{ opacity: 0.4, x: 32 * dir }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.2, ease: EASE_OUT }}
         drag="x"

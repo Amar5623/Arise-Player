@@ -9,6 +9,15 @@ const LOOK = {
   INJURED: { tone: 'bad', icon: <FirstAidKit weight="fill" />, label: 'Injured' },
 } as const;
 
+export function ConditionBadge({ condition }: { condition: Condition }) {
+  const look = LOOK[condition];
+  return (
+    <Badge tone={look.tone} icon={look.icon}>
+      {look.label}
+    </Badge>
+  );
+}
+
 /** The morning check, collapsed: condition plus the numbers behind it. */
 export function ConditionChip({
   condition,
@@ -19,12 +28,9 @@ export function ConditionChip({
   readiness: Readiness;
   onEdit: () => void;
 }) {
-  const look = LOOK[condition];
   return (
     <div className="flex items-center gap-3">
-      <Badge tone={look.tone} icon={look.icon}>
-        {look.label}
-      </Badge>
+      <ConditionBadge condition={condition} />
       <p className="min-w-0 flex-1 truncate text-13 text-ink-2">
         Slept <span className="num text-ink">{readiness.sleep}</span> h, energy{' '}
         <span className="num text-ink">{readiness.energy}</span>, soreness{' '}

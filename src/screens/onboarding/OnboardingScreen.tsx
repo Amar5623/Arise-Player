@@ -64,7 +64,7 @@ export function OnboardingScreen() {
       </div>
       <motion.main
         key={step}
-        initial={{ opacity: 0, x: 24 }}
+        initial={{ opacity: 0.4, x: 24 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.22, ease: EASE_OUT }}
         className="flex flex-1 flex-col"

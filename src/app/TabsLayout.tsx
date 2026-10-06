@@ -41,7 +41,7 @@ export function TabsLayout() {
     <div className="min-h-dvh pb-[calc(var(--tabbar-h)+var(--safe-bottom))]">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, x: motionFor.x }}
+        initial={{ opacity: 0.4, x: motionFor.x }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: motionFor.x === 0 ? 0.12 : 0.22, ease: EASE_OUT }}
       >
