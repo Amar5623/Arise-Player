@@ -17,7 +17,7 @@ export interface StepperProps {
   step?: number;
   unit?: string;
   label: string;
-  size?: 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
   format?: (value: number) => string;
   className?: string;
 }
@@ -112,10 +112,11 @@ export function Stepper({
   };
 
   const lg = size === 'lg';
+  const sm = size === 'sm';
   const btn = cn(
     'tap grid shrink-0 place-items-center rounded-ctl border border-line-2 bg-s2 text-ink transition-[background-color,transform] duration-(--dur-1)',
     'enabled:hover:bg-s3 enabled:active:scale-[0.96] enabled:active:bg-s4 disabled:text-ink-4',
-    lg ? 'size-14 [&_svg]:size-6' : 'size-12 [&_svg]:size-5',
+    lg ? 'size-14 [&_svg]:size-6' : sm ? 'size-11 [&_svg]:size-5' : 'size-12 [&_svg]:size-5',
   );
 
   return (

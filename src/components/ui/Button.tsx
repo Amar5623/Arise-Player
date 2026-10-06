@@ -57,12 +57,12 @@ export function Button({
       aria-disabled={loading || undefined}
       onClick={handle}
       className={cn(
-        'relative inline-flex shrink-0 tap items-center justify-center rounded-ctl text-center font-medium',
+        'relative inline-flex tap items-center justify-center rounded-ctl text-center font-medium',
         'transition-[background-color,border-color,color,transform] duration-(--dur-1) ease-out',
         'enabled:active:scale-[0.98]',
         VARIANT[variant],
         SIZE[size],
-        block && 'w-full',
+        block ? 'w-full min-w-0' : 'shrink-0',
         loading && 'pointer-events-none',
         className,
       )}

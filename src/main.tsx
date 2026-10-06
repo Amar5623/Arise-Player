@@ -8,13 +8,23 @@ import './styles/index.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
-import { router } from './app/router';
+import { createRouter } from './app/router';
+import { DEMO } from './db/db';
+import { todayISO } from './lib/dates';
 
-const root = document.getElementById('root');
-if (!root) throw new Error('Missing #root');
+async function start() {
+  const root = document.getElementById('root');
+  if (!root) throw new Error('Missing #root');
+  if (DEMO) {
+    const { seedDemo } = await import('./db/demo/seed');
+    await seedDemo(todayISO());
+  }
+  const router = createRouter();
+  createRoot(root).render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>,
+  );
+}
 
-createRoot(root).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-);
+void start();
