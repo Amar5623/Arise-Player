@@ -100,6 +100,8 @@ test('onboarding to Gate cleared, level-up, and next-day penalty', async ({ page
   await expect(page.getByText('Target up to', { exact: false }).first()).toBeVisible();
   const levelUp = page.getByRole('dialog', { name: /Level up/ });
   await expect(levelUp).toBeVisible();
+  await page.waitForTimeout(1100);
+  await page.screenshot({ path: 'screenshots/levelup-390.png' });
   await levelUp.getByRole('button', { name: 'Continue' }).click();
   await expect(levelUp).toBeHidden();
   await page.getByRole('button', { name: 'Done' }).click();

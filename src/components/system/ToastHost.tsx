@@ -1,6 +1,7 @@
 import { AnimatePresence, useReducedMotion, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { X } from '@phosphor-icons/react';
+import { useEvents } from '@/app/stores/events';
 import { useToasts, type Toast } from '@/app/stores/toasts';
 import { cn } from '@/lib/cn';
 import { TONE_GLYPH } from './tone';
@@ -10,7 +11,10 @@ const AUTO_MS = 3200;
 
 /** Shows the head of the queue, dropping from the top. Swipe up or tap × to dismiss. */
 export function ToastHost() {
-  const head = useToasts((s) => s.queue[0]);
+  const queued = useToasts((s) => s.queue[0]);
+  // Notices wait while a level-up has the screen; they show once it closes.
+  const celebrating = useEvents((s) => s.levelUp !== null);
+  const head = celebrating ? undefined : queued;
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-(--z-toast) mx-auto max-w-(--frame-w) px-3 pt-[calc(8px+var(--safe-top))]">
       <AnimatePresence mode="wait">
