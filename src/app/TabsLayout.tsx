@@ -1,8 +1,6 @@
-import { motion } from 'motion/react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { useLocation, useOutlet } from 'react-router';
 import { tabOf, useTabs } from '@/app/stores/tabs';
-import { EASE_OUT } from '@/lib/motion';
 import { TabBar } from './TabBar';
 
 /** Keeps the element a page mounted with, so its route never swaps under it mid-transition. */
@@ -39,14 +37,18 @@ export function TabsLayout() {
 
   return (
     <div className="min-h-dvh pb-[calc(var(--tabbar-h)+var(--safe-bottom))]">
-      <motion.div
+      <div
         key={location.pathname}
-        initial={{ opacity: 0.4, x: motionFor.x }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: motionFor.x === 0 ? 0.12 : 0.22, ease: EASE_OUT }}
+        className="page-enter"
+        style={
+          {
+            '--enter-x': `${motionFor.x}px`,
+            '--page-dur': motionFor.x === 0 ? '120ms' : '220ms',
+          } as CSSProperties
+        }
       >
         <Frozen>{outlet}</Frozen>
-      </motion.div>
+      </div>
       <TabBar />
     </div>
   );

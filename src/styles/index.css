@@ -132,6 +132,9 @@
     min-height: 100dvh;
     margin-inline: auto;
     isolation: isolate;
+    /* Page slides start 24px off to the side; clip (not hidden) keeps sticky working and stops
+       mobile Chrome from widening the layout viewport mid-animation. */
+    overflow-x: clip;
   }
   @media (min-width: 640px) {
     #root {

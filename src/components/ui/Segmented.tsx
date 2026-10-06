@@ -1,7 +1,5 @@
-import { motion } from 'motion/react';
-import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
-import { SPRING_UI } from '@/lib/motion';
 
 export interface SegmentOption<T extends string | number> {
   value: T;
@@ -30,7 +28,6 @@ export function Segmented<T extends string | number>({
   disabled = false,
   className,
 }: SegmentedProps<T>) {
-  const id = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const selectedIndex = options.findIndex((o) => o.value === value);
 
@@ -55,11 +52,21 @@ export function Segmented<T extends string | number>({
       aria-label={label}
       aria-disabled={disabled || undefined}
       className={cn(
-        'flex min-h-12 gap-px rounded-ctl border border-line-2 bg-s2 p-px',
+        'relative flex min-h-12 gap-px rounded-ctl border border-line-2 bg-s2 p-px',
         disabled && 'opacity-50',
         className,
       )}
     >
+      {selectedIndex >= 0 && (
+        <span
+          aria-hidden
+          className="slide-indicator absolute inset-y-px left-px rounded-inner border border-line-3 bg-s4"
+          style={{
+            width: `calc((100% - 2px - ${options.length - 1}px) / ${options.length})`,
+            transform: `translateX(calc(${selectedIndex} * (100% + 1px)))`,
+          }}
+        />
+      )}
       {options.map((o, i) => {
         const active = o.value === value;
         return (
@@ -84,13 +91,6 @@ export function Segmented<T extends string | number>({
                 : 'text-ink-2 enabled:hover:text-ink enabled:active:bg-s3',
             )}
           >
-            {active && (
-              <motion.span
-                layoutId={`seg-${id}`}
-                transition={SPRING_UI}
-                className="absolute inset-0 rounded-inner border border-line-3 bg-s4"
-              />
-            )}
             <span className="relative">{o.label}</span>
           </button>
         );

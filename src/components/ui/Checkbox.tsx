@@ -1,6 +1,4 @@
-import { motion } from 'motion/react';
 import { cn } from '@/lib/cn';
-import { DUR, EASE_OUT } from '@/lib/motion';
 
 export interface CheckboxProps {
   checked: boolean;
@@ -50,6 +48,7 @@ export function CheckMark({
   return (
     <span
       aria-hidden
+      data-checked={checked}
       className={cn(
         'relative grid size-5.5 place-items-center rounded-mark border transition-[background-color,border-color,transform] duration-(--dur-1) ease-out',
         interactive && !disabled && 'group-active:scale-90',
@@ -62,15 +61,14 @@ export function CheckMark({
       )}
     >
       <svg viewBox="0 0 16 16" className="size-3.5">
-        <motion.path
+        <path
+          className="check-path"
           d="M3 8.5 6.5 12 13 4.5"
+          pathLength={1}
           fill="none"
           stroke="var(--color-sys-ink)"
           strokeWidth={2.25}
           strokeLinecap="square"
-          initial={false}
-          animate={{ pathLength: checked ? 1 : 0, opacity: checked ? 1 : 0 }}
-          transition={{ duration: DUR[2], ease: EASE_OUT }}
         />
       </svg>
     </span>

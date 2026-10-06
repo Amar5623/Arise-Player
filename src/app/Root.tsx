@@ -1,11 +1,9 @@
-import { MotionConfig } from 'motion/react';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Outlet, ScrollRestoration } from 'react-router';
 import { openDay } from '@/app/commands/day';
 import { startClock, useToday } from '@/app/stores/clock';
 import { useEvents } from '@/app/stores/events';
-import { LevelUpTakeover } from '@/components/system/LevelUpTakeover';
-import { ToastHost } from '@/components/system/ToastHost';
+import { UpdatePrompt } from './UpdatePrompt';
 import { DEMO } from '@/db/db';
 import { useProfile } from '@/db/hooks';
 import { setHapticsEnabled } from '@/lib/haptics';
@@ -51,17 +49,28 @@ function DemoMarker() {
   );
 }
 
-/** App-wide chrome: one reduced-motion policy, base texture, toasts, level-ups, day boot. */
+// Animated overlays load after first paint: the first screen ships no animation library.
+const ToastHost = lazy(() =>
+  import('@/components/system/ToastHost').then((mod) => ({ default: mod.ToastHost })),
+);
+const LevelUpTakeover = lazy(() =>
+  import('@/components/system/LevelUpTakeover').then((mod) => ({ default: mod.LevelUpTakeover })),
+);
+
+/** App-wide chrome: base texture, toasts, level-ups, day boot, update prompt. */
 export function Root() {
   return (
-    <MotionConfig reducedMotion="user">
+    <>
       <div aria-hidden className="base-grid" />
       <Boot />
       <DemoMarker />
       <Outlet />
       <ScrollRestoration getKey={(loc) => loc.pathname} />
-      <ToastHost />
-      <LevelUpHost />
-    </MotionConfig>
+      <Suspense fallback={null}>
+        <ToastHost />
+        <LevelUpHost />
+      </Suspense>
+      <UpdatePrompt />
+    </>
   );
 }

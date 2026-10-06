@@ -1,15 +1,17 @@
-import { animate, useReducedMotion } from 'motion/react';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { useEffect, useRef } from 'react';
-import { EASE_OUT } from '@/lib/motion';
 
 export interface CountUpProps {
   value: number;
   from?: number;
   /** When false the final value renders without animating. */
   play?: boolean;
+  /** Seconds. */
   duration?: number;
   format?: (n: number) => string;
 }
+
+const easeOut = (t: number) => 1 - (1 - t) ** 4;
 
 /** Writes digits straight to the DOM so a count-up never re-renders React per frame. */
 export function CountUp({
@@ -29,14 +31,15 @@ export function CountUp({
       el.textContent = format(value);
       return;
     }
-    const controls = animate(from, value, {
-      duration,
-      ease: EASE_OUT,
-      onUpdate: (v) => {
-        el.textContent = format(Math.round(v));
-      },
-    });
-    return () => controls.stop();
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / (duration * 1000));
+      el.textContent = format(Math.round(from + (value - from) * easeOut(t)));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [value, from, play, reduce, duration, format]);
 
   return <span ref={ref}>{format(value)}</span>;

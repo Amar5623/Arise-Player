@@ -1,6 +1,5 @@
 import { CaretLeft } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { completeOnboarding } from '@/app/commands/onboarding';
 import { useToday } from '@/app/stores/clock';
@@ -20,14 +19,21 @@ import { AREA_LABEL, dailyLoad, LEAN_LIMIT } from '@/engine/quests';
 import type { LadderKey } from '@/engine/types';
 import { isHHMM, isISODate, weekday } from '@/lib/dates';
 import { cn } from '@/lib/cn';
-import { EASE_OUT } from '@/lib/motion';
 import { useOnboarding, type ProfileDraft } from './store';
 
 const TOTAL = 4;
 
 function Progress({ step }: { step: number }) {
   return (
-    <div className="flex flex-col gap-2" aria-label={`Step ${step} of ${TOTAL}`}>
+    <div
+      className="flex flex-col gap-2"
+      role="progressbar"
+      aria-label="Setup progress"
+      aria-valuemin={1}
+      aria-valuemax={TOTAL}
+      aria-valuenow={step}
+      aria-valuetext={`Step ${step} of ${TOTAL}`}
+    >
       <p className="hud-11 text-ink-3" aria-hidden>
         Step <span className="num text-ink">{step}</span> of {TOTAL}
       </p>
@@ -62,18 +68,16 @@ export function OnboardingScreen() {
           <Progress step={step} />
         </div>
       </div>
-      <motion.main
+      <main
         key={step}
-        initial={{ opacity: 0.4, x: 24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.22, ease: EASE_OUT }}
-        className="flex flex-1 flex-col"
+        className="page-enter flex flex-1 flex-col"
+        style={{ '--enter-x': '24px' } as CSSProperties}
       >
         {step === 1 && <Awaken onAccept={() => go(2)} />}
         {step === 2 && <ProfileStep onNext={() => go(3)} />}
         {step === 3 && <LadderStep onNext={() => go(4)} />}
         {step === 4 && <QuestStep />}
-      </motion.main>
+      </main>
     </div>
   );
 }

@@ -1,9 +1,7 @@
 import { Barbell, CalendarCheck, ChartPolar, Target, type Icon } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { tabOf, useTabs, type TabRoot } from '@/app/stores/tabs';
 import { cn } from '@/lib/cn';
-import { SPRING_UI } from '@/lib/motion';
 
 interface Tab {
   to: TabRoot;
@@ -42,6 +40,15 @@ export function TabBar({ preview, className }: TabBarProps) {
         className,
       )}
     >
+      {current && (
+        <span
+          aria-hidden
+          className="slide-indicator pointer-events-none absolute top-0 left-0 flex h-0.5 w-1/4 justify-center"
+          style={{ transform: `translateX(${TABS.findIndex((t) => t.to === current) * 100}%)` }}
+        >
+          <span className="h-full w-6 bg-sys" />
+        </span>
+      )}
       <ul className="grid min-h-(--tabbar-h) grid-cols-4">
         {TABS.map(({ to, label, icon: Glyph }) => {
           const isActive = current === to;
@@ -60,13 +67,6 @@ export function TabBar({ preview, className }: TabBarProps) {
                 }}
                 className="group relative flex min-w-0 tap flex-col items-center justify-center gap-1 px-1 py-2 outline-offset-[-4px] transition-colors duration-(--dur-1) active:bg-s2"
               >
-                {isActive && (
-                  <motion.span
-                    layoutId={preview ? undefined : 'tab-indicator'}
-                    transition={SPRING_UI}
-                    className="absolute top-0 h-0.5 w-6 bg-sys"
-                  />
-                )}
                 <Glyph
                   weight={isActive ? 'regular' : 'light'}
                   className={cn(

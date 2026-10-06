@@ -8,6 +8,9 @@ import {
 import { repo } from '@/db/repos';
 import { Root } from './Root';
 import { TabsLayout } from './TabsLayout';
+// The two possible first screens ship in the main chunk: no extra request before first paint.
+import { OnboardingScreen } from '@/screens/onboarding/OnboardingScreen';
+import { TodayScreen } from '@/screens/today/TodayScreen';
 
 /** First run goes to the Awakening; a Player never sees it again. */
 async function gate({ request }: LoaderFunctionArgs) {
@@ -33,7 +36,7 @@ function page<T extends Record<string, unknown>>(
 }
 
 const tabs: RouteObject[] = [
-  page('today', () => import('@/screens/today/TodayScreen'), 'TodayScreen'),
+  { path: 'today', Component: TodayScreen },
   page('train', () => import('@/screens/train/GateScreen'), 'GateScreen'),
   page('train/exercise/:id', () => import('@/screens/train/ExerciseScreen'), 'ExerciseScreen'),
   page('status', () => import('@/screens/status/StatusScreen'), 'StatusScreen'),
@@ -56,11 +59,7 @@ export const createRouter = () =>
       shouldRevalidate: ({ currentUrl, nextUrl }) => currentUrl.pathname !== nextUrl.pathname,
       children: [
         { index: true, loader: () => redirect('/today') },
-        page(
-          'onboarding/:step',
-          () => import('@/screens/onboarding/OnboardingScreen'),
-          'OnboardingScreen',
-        ),
+        { path: 'onboarding/:step', Component: OnboardingScreen },
         { element: <TabsLayout />, children: tabs },
         page('gate/focus', () => import('@/screens/train/FocusScreen'), 'FocusScreen'),
         page(

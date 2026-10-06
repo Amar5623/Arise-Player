@@ -143,13 +143,15 @@ There is no pill radius and no `rounded-2xl`.
 | `--z-toast` | 60 | System toasts |
 | `--z-grain` | -1 | Fixed grid texture behind content (`#root` isolates), `pointer-events: none` |
 
+`#root` clips horizontal overflow (`overflow-x: clip`) so page slides never widen the mobile layout viewport.
+
 Layout tokens: `--frame-w: 430px` (phone frame, every fixed layer uses it), `--tabbar-h: 64px` (a minimum), `--cta-h: 52px`.
 
 ---
 
 ## 4. Motion
 
-- Spring-based and fast. **Reduced motion:** `<MotionConfig reducedMotion="user">` at the root turns every Motion transform/layout animation into an instant swap. A global CSS rule limits CSS transitions to colour and opacity, so state still reads but nothing moves. Scan reveals don't play. Toast swipe-to-dismiss stays, because it's input, not animation.
+- Fast, exit-heavy easing. **Where motion lives:** everything on the first screen is plain CSS (page entrance `page-in`, checkbox draw, XP bar, sliding indicators on segmented controls and the tab bar, the System Window reveal), so the first paint ships no animation library. Motion (`motion/react`) is used only in surfaces that load later: toasts (drag to dismiss), the level-up takeover, the rank badge redraw, Focus Mode swipes. **Reduced motion:** CSS animations are disabled under `prefers-reduced-motion`, a global rule limits transitions to colour and opacity, and each Motion surface checks `useReducedMotion()`. Toast swipe-to-dismiss stays, because it's input, not animation.
 
 | Token | Value | Use |
 |---|---|---|

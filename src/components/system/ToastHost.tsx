@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, useReducedMotion, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { X } from '@phosphor-icons/react';
 import { useToasts, type Toast } from '@/app/stores/toasts';

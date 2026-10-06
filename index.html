@@ -8,10 +8,23 @@
     <meta name="description" content="Player System: daily quests, training gates and progression for one player." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Player" />
     <title>Player System</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="margin: 0; background: #05070c">
+    <div id="root">
+      <!-- Launch mark: painted before the app's JavaScript arrives; React replaces it on mount. -->
+      <div style="min-height: 100dvh; display: grid; place-items: center; background: #05070c">
+        <svg viewBox="0 0 64 64" width="56" height="56" aria-label="Player System" role="img">
+          <path d="M6 18V6h12M46 6h12v12M58 46v12H46M18 58H6V46" fill="none" stroke="#4db8ff" stroke-width="3" stroke-linecap="square" />
+          <path d="M19 44 32 31l13 13" fill="none" stroke="#4db8ff" stroke-width="5" stroke-linecap="square" />
+          <path d="M19 31 32 18l13 13" fill="none" stroke="#4db8ff" stroke-opacity=".45" stroke-width="5" stroke-linecap="square" />
+        </svg>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

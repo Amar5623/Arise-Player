@@ -20,9 +20,32 @@ async function shoot(page: Page, name: string, width: number, full = true) {
     await unfixChrome(page);
     await page.screenshot({ path: `screenshots/${name}-${width}.png`, fullPage: true });
   }
-  // Mobile emulation widens innerWidth to fit overflowing content, so compare with the set viewport.
-  const overflow = (await page.evaluate(() => document.documentElement.scrollWidth)) - width;
-  if (overflow > 0) throw new Error(`${name}: horizontal overflow ${overflow}px at ${width}`);
+  // #root clips overflow, so check elements directly: nothing in-flow may extend past the screen.
+  const wide = await page.evaluate((w) => {
+    const out: string[] = [];
+    for (const el of Array.from(document.querySelectorAll('#root *'))) {
+      let fixed = false;
+      for (let a: Element | null = el; a && a.id !== 'root'; a = a.parentElement) {
+        const cs = getComputedStyle(a);
+        if (
+          cs.position === 'fixed' ||
+          cs.overflowX === 'auto' ||
+          cs.overflowX === 'hidden' ||
+          cs.overflowX === 'scroll'
+        )
+          fixed = true;
+      }
+      const r = el.getBoundingClientRect();
+      if (!fixed && r.width > 0 && r.right > w + 1)
+        out.push(`${el.tagName}.${String(el.className).slice(0, 50)} right=${Math.round(r.right)}`);
+    }
+    return out;
+  }, width);
+  const scrolled = (await page.evaluate(() => document.documentElement.scrollWidth)) - width;
+  if (wide.length || scrolled > 0)
+    throw new Error(
+      `${name}: horizontal overflow at ${width}: ${wide.slice(0, 3).join('; ')} (scrollWidth +${scrolled})`,
+    );
 }
 
 const only = process.env.SHOTS?.split(',');

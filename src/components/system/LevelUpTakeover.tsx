@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, useReducedMotion, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import type { Rank, Stat } from '@/engine/types';
 import { Button } from '@/components/ui/Button';

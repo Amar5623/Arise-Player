@@ -1,5 +1,5 @@
+import { motion, useReducedMotion } from 'motion/react';
 import { CaretLeft, CaretRight, FirstAidKit, PlayCircle, SunDim, X } from '@phosphor-icons/react';
-import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { clearDraft, draftKey, emptyDraft, type GateDraft } from '@/app/commands/draft';
@@ -58,6 +58,7 @@ function Focus({ p, draft: stored }: { p: Prescription; draft: GateDraft }) {
   const clearSheet = useSheet('clear');
   const [clearing, setClearing] = useState(false);
   const [dir, setDir] = useState(1);
+  const reduce = useReducedMotion();
   const total = p.items.length;
   const index = Math.min(draft.index, total);
   const item = index > 0 ? p.items[index - 1] : undefined;
@@ -141,7 +142,7 @@ function Focus({ p, draft: stored }: { p: Prescription; draft: GateDraft }) {
       <motion.main
         key={index}
         className="flex flex-1 touch-pan-y flex-col px-4 pt-4"
-        initial={{ opacity: 0.4, x: 32 * dir }}
+        initial={reduce ? false : { opacity: 0.4, x: 32 * dir }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.2, ease: EASE_OUT }}
         drag="x"

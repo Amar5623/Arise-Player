@@ -1,6 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/cn';
-import { SPRING_SOFT } from '@/lib/motion';
 
 export interface QuestMeterProps {
   done: number;
@@ -51,7 +49,6 @@ export function XpBar({
   className,
   label = 'Experience to next level',
 }: XpBarProps) {
-  const reduce = useReducedMotion();
   const pct = next > 0 ? Math.min(1, Math.max(0, into / next)) : 0;
   return (
     <div
@@ -62,11 +59,12 @@ export function XpBar({
       aria-valuenow={into}
       className={cn('h-1 overflow-hidden rounded-mark bg-s3', className)}
     >
-      <motion.div
-        className={cn('h-full origin-left', tone === 'sys' ? 'bg-sys' : 'bg-rare')}
-        initial={false}
-        animate={{ scaleX: pct }}
-        transition={reduce ? { duration: 0 } : SPRING_SOFT}
+      <div
+        className={cn(
+          'h-full origin-left transition-transform duration-500 ease-out',
+          tone === 'sys' ? 'bg-sys' : 'bg-rare',
+        )}
+        style={{ transform: `scaleX(${pct})` }}
       />
     </div>
   );

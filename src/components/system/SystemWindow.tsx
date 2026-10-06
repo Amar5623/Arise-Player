@@ -1,7 +1,6 @@
-import { motion, useReducedMotion } from 'motion/react';
-import { useId, type ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { useId } from 'react';
 import { cn } from '@/lib/cn';
-import { DUR, EASE_OUT } from '@/lib/motion';
 import { TONE_GLYPH, type SystemTone } from './tone';
 
 export type { SystemTone };
@@ -15,7 +14,8 @@ export interface SystemWindowProps {
   children?: ReactNode;
   /**
    * Announce: corner ticks draw, the body uncovers top to bottom behind a scan line.
-   * Opt-in, so the System only speaks when something actually happened.
+   * Opt-in, so the System only speaks when something actually happened. CSS-driven, so it
+   * runs on first paint and honours reduced motion without JavaScript.
    */
   reveal?: boolean;
   /** Body padding; set false when rows run edge to edge. */
@@ -25,7 +25,6 @@ export interface SystemWindowProps {
 }
 
 const TICKS = ['tl', 'tr', 'bl', 'br'] as const;
-const REVEAL_S = 0.3;
 
 /** The System speaking. Hairline tinted frame, corner ticks, inner glow, scan reveal. */
 export function SystemWindow({
@@ -38,20 +37,16 @@ export function SystemWindow({
   as: Heading = 'h2',
   className,
 }: SystemWindowProps) {
-  const reduce = useReducedMotion();
-  const play = reveal && !reduce;
   const labelId = useId();
-
   return (
     <section data-tone={tone} aria-labelledby={labelId} className={cn('sys-window', className)}>
       {TICKS.map((c, i) => (
-        <motion.span
+        <span
           key={c}
           data-c={c}
+          data-play={reveal || undefined}
           className="sys-tick"
-          initial={play ? { opacity: 0, scale: 0.4 } : false}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: DUR[1], delay: i * 0.02, ease: EASE_OUT }}
+          style={{ animationDelay: `${i * 20}ms` } as CSSProperties}
         />
       ))}
       <header className="flex min-h-11 items-center justify-between gap-3 px-4 pt-2">
@@ -64,22 +59,10 @@ export function SystemWindow({
         {aside && <div className="flex items-center gap-2">{aside}</div>}
       </header>
       {children && <div className={cn(padded ? 'px-4 pt-1 pb-4' : 'pb-2')}>{children}</div>}
-      {play && (
+      {reveal && (
         <>
-          <motion.span
-            aria-hidden
-            className="sys-cover"
-            initial={{ scaleY: 1 }}
-            animate={{ scaleY: 0 }}
-            transition={{ duration: REVEAL_S, delay: 0.1, ease: EASE_OUT }}
-          />
-          <motion.span
-            aria-hidden
-            className="sys-scan"
-            initial={{ top: '0%', opacity: 1 }}
-            animate={{ top: '100%', opacity: 0 }}
-            transition={{ duration: REVEAL_S + 0.04, delay: 0.1, ease: EASE_OUT }}
-          />
+          <span aria-hidden className="sys-cover" />
+          <span aria-hidden data-play className="sys-scan" />
         </>
       )}
     </section>
