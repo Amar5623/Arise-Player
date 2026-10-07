@@ -8,6 +8,10 @@ dev-dist
 test-results
 playwright-report
 .claude/settings.local.json
+screenshots
+.agent
+.claude
+.gemini
 .impeccable/config.local.json
 .impeccable/review/tmp
-screenshots
+.impeccable/critique
