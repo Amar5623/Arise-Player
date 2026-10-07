@@ -35,9 +35,11 @@ The app works fully without AI. AI adds bonus quests on Today and the Weekly Sys
 | Variable | Required | Notes |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | For AI | Server only. Never sent to the browser. |
-| `AI_MODEL` | No | Defaults to `claude-haiku-4-5`. |
+| `AI_MODEL` | No | Defaults to `claude-haiku-4-5` for Anthropic and `gemini-3.5-flash-lite` for Gemini. A Claude id is ignored when the provider is Gemini. |
 | `APP_PASSCODE` | For AI | Any secret string. The app sends it as `x-app-passcode`; set the same value in the app under **Settings → AI**. The route rejects every request without it, because the URL is public. |
 | `AI_PROVIDER` | No | `anthropic` (default), `openai` (with `OPENAI_API_KEY`) or `gemini` (with `GEMINI_API_KEY`). |
+
+**Using a free Gemini key instead:** create a key in Google AI Studio, then set `AI_PROVIDER=gemini`, `GEMINI_API_KEY` and `APP_PASSCODE`; `ANTHROPIC_API_KEY` is not needed. The default model, Gemini 3.5 Flash-Lite, has the largest free daily allowance (about 500 requests a day as of October 2026; AI Studio shows your project's exact limits). The app makes one request per bonus-quest refresh or weekly report, so personal use stays far below it. If Google's daily cap is reached, the app says so and everything else keeps working.
 
 For local AI, copy `.env.example` to `.env.local` and fill it in. The route also rate limits each IP (12 requests per 10 minutes), validates input and output with zod, and clamps what the model returns: 2-4 quests, titles of at most 6 words, XP 5-30, no duplicates of today's quests.
 
@@ -45,7 +47,7 @@ For local AI, copy `.env.example` to `.env.local` and fill it in. The route also
 
 1. Push this repo to GitHub.
 2. In Vercel: **Add New → Project → Import** the repo. The framework preset is Vite; `vercel.json` already sets the build command, the `dist` output, SPA rewrites (everything except `/api/*` serves `index.html`), and cache headers.
-3. **Settings → Environment Variables:** add `ANTHROPIC_API_KEY`, `APP_PASSCODE` and, optionally, `AI_MODEL`.
+3. **Settings → Environment Variables:** add `APP_PASSCODE` and either `ANTHROPIC_API_KEY`, or `AI_PROVIDER=gemini` with `GEMINI_API_KEY`. `AI_MODEL` is optional.
 4. **Deploy.** Then open the app, go to **Settings → AI**, turn AI on and enter the passcode.
 
 ## Install on your phone

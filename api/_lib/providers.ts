@@ -72,7 +72,10 @@ async function openai(system: string, user: string, maxTokens: number): Promise<
 async function gemini(system: string, user: string, maxTokens: number): Promise<Completion> {
   const key = env('GEMINI_API_KEY');
   if (!key) throw new ProviderError('GEMINI_API_KEY is not set on the server.', 500);
-  const model = env('AI_MODEL') ?? 'gemini-2.0-flash';
+  // AI_MODEL may still hold a Claude id from .env.example; only take it when it names a Gemini model.
+  // 3.5 Flash-Lite: free tier with the largest daily allowance, and no shutdown date announced.
+  const named = env('AI_MODEL');
+  const model = named && /^(gemini|gemma)-/.test(named) ? named : 'gemini-3.5-flash-lite';
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {
@@ -81,17 +84,27 @@ async function gemini(system: string, user: string, maxTokens: number): Promise<
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: 'user', parts: [{ text: user }] }],
-        generationConfig: { maxOutputTokens: maxTokens },
+        // Thinking tokens count against maxOutputTokens on 3.x models; leave headroom so the
+        // JSON reply is never cut short.
+        generationConfig: { maxOutputTokens: maxTokens + 2048, responseMimeType: 'application/json' },
       }),
     },
   );
+  if (res.status === 429)
+    throw new ProviderError('The Gemini free-tier limit is used up for now. Try again later.', 503);
+  if (res.status === 400 || res.status === 403 || res.status === 404)
+    throw new ProviderError(`The AI provider rejected the request (${res.status}; check GEMINI_API_KEY and AI_MODEL).`, 502);
   if (!res.ok) throw new ProviderError(`The AI provider failed (${res.status}).`, 502);
   const body = (await res.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
+    candidates?: {
+      content?: { parts?: { text?: string; thought?: boolean }[] };
+      finishReason?: string;
+    }[];
   };
   const c = body.candidates?.[0];
   return {
-    text: c?.content?.parts?.map((p) => p.text ?? '').join('') ?? '',
+    // Thought summaries arrive as parts flagged thought; keep only the answer.
+    text: c?.content?.parts?.filter((p) => !p.thought).map((p) => p.text ?? '').join('') ?? '',
     refused: c?.finishReason === 'SAFETY',
   };
 }
